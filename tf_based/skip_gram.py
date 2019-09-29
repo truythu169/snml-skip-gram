@@ -97,7 +97,8 @@ class SkipGram:
 
     def export_embedding(self):
         # write embedding result to file
-        output = open(self.output_dictionary + self.embedding_file, 'w')
+        filename = self.output_dictionary + self.embedding_file
+        output = open(filename, 'w')
         for i in range(self.embedding.shape[0]):
             text = self.int_to_vocab[i]
             for j in self.embedding[i]:
@@ -106,6 +107,10 @@ class SkipGram:
             output.write(text)
 
         output.close()
+
+        # upload to gcs
+        gcs_filename = utils.convert_local_path_to_gcs(filename)
+        utils.upload_to_gcs(gcs_filename, filename)
 
     def export_model(self):
         utils.save_pkl(self.embedding, self.output_dictionary + config['TRAIN']['embedding_pkl'])

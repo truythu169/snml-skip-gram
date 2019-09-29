@@ -2,6 +2,8 @@ from snml.np_based.model import Model
 import time
 import numpy as np
 import argparse
+import os
+import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -11,6 +13,10 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # read snml train file
+    # download from gcs
+    if not os.path.exists(args.snml_train_file):
+        gcs_filename = utils.convert_local_path_to_gcs(args.snml_train_file)
+        utils.download_from_gcs(gcs_filename, args.snml_train_file)
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
@@ -34,7 +40,12 @@ if __name__ == "__main__":
     print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
 
     # Save result to file
-    output = open(args.model + 'scope-{}-snml_length.txt'.format(args.scope), 'w')
+    filename = args.model + 'scope-{}-snml_length.txt'.format(args.scope)
+    output = open(filename, 'w')
     for i in snml_lengths:
         output.write(str(i) + '\n')
     output.close()
+
+    # upload to gcs
+    gcs_filename = utils.convert_local_path_to_gcs(filename)
+    utils.upload_to_gcs(gcs_filename, filename)

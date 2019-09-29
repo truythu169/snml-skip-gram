@@ -1,10 +1,14 @@
 import numpy as np
 from collections import Counter
+from google.cloud import storage as gcs
 import random
 import pickle
 import os
 from nltk.corpus import stopwords
-from utils.settings import config
+from utils.settings import config, env
+
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env['GCS']['app_credential']
 
 
 def preprocess(text, min_word=20):
@@ -85,13 +89,50 @@ def save_pkl(data, filename):
     pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
     output.close()
 
+    # upload to gcs
+    gcs_filename = convert_local_path_to_gcs(filename)
+    upload_to_gcs(gcs_filename, filename)
+
 
 def load_pkl(filename):
     """ Load data to pickle """
+    # download from gcs
+    if not os.path.exists(filename):
+        gcs_filename = convert_local_path_to_gcs(filename)
+        download_from_gcs(gcs_filename, filename)
+
     input = open(filename, 'rb')
     data = pickle.load(input)
     input.close()
     return data
+
+
+def convert_local_path_to_gcs(local_file):
+    parts = local_file.split('.')
+    gcs_file = parts[-2][1:] + '.' + parts[-1]
+    return gcs_file
+
+
+def download_from_gcs(gcs_path, local_path):
+    project_id = env['GCS']['project_id']
+    bucket_name = env['GCS']['bucket']
+
+    client = gcs.Client(project_id)
+    bucket = client.get_bucket(bucket_name)
+    blob = gcs.Blob(gcs_path, bucket)
+
+    blob.download_to_filename(local_path)
+
+
+def upload_to_gcs(gcs_path, local_path):
+    project_id = env['GCS']['project_id']
+    bucket_name = env['GCS']['bucket']
+
+    client = gcs.Client(project_id)
+    bucket = client.get_bucket(bucket_name)
+    blob = gcs.Blob(gcs_path, bucket)
+
+    blob.upload_from_filename(local_path)
 
 
 def label_binarizer(labels, n_class):
