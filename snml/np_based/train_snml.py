@@ -5,7 +5,7 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../models/31epochs/50dim/', type=str)
+    parser.add_argument('--model', default='../../../output/convergence_test/3000samples/31epochs/snml/75dim/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/processed data/scope.csv', type=str)
     parser.add_argument('--scope', default=100, type=int)
     args = parser.parse_args()
