@@ -2,7 +2,6 @@ from snml.np_based.model import Model
 import time
 import numpy as np
 import argparse
-import os
 import utils.tools as utils
 
 if __name__ == "__main__":
@@ -13,10 +12,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     # read snml train file
-    # download from gcs
-    if not os.path.exists(args.snml_train_file):
-        gcs_filename = utils.convert_local_path_to_gcs(args.snml_train_file)
-        utils.download_from_gcs(gcs_filename, args.snml_train_file)
+    utils.sync_file_gcs(args.snml_train_file)
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
@@ -47,5 +43,4 @@ if __name__ == "__main__":
     output.close()
 
     # upload to gcs
-    gcs_filename = utils.convert_local_path_to_gcs(filename)
-    utils.upload_to_gcs(gcs_filename, filename)
+    utils.sync_file_gcs(filename)

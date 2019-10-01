@@ -1,4 +1,5 @@
 from utils.embedding import Embedding
+import utils.tools as utils
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from statistics import mean
@@ -37,6 +38,7 @@ class WordAnalogy:
         self.top_words = []
 
     def set_top_words(self, filename):
+        utils.sync_file_gcs(filename)
         with open(filename, "r") as f:
             words = f.read().splitlines()
         self.top_words = set(words)
@@ -135,5 +137,5 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/processed data/top_30000_words.txt')
-    embedding = Embedding.from_file('../../output/80dim/embedding-e=80-n_sampled=3000-epochs=31-batch_size=10000.txt')
+    embedding = Embedding.from_file('../../output/full/2/75dim/embedding-e=75-n_sampled=3000-epochs=31-batch_size=10000.txt')
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)

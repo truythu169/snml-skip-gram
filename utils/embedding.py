@@ -1,4 +1,5 @@
 import numpy as np
+import utils.tools as utils
 
 
 class Embedding:
@@ -14,6 +15,9 @@ class Embedding:
     # Construct from file
     @staticmethod
     def from_file(filename):
+        # sync with gcs
+        utils.sync_file_gcs(filename)
+
         # load data from file
         f = open(filename, "r")
         words = []

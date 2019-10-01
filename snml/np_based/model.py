@@ -8,6 +8,11 @@ import multiprocessing
 class Model:
 
     def __init__(self, data_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08):
+        # sync with gcs
+        utils.sync_file_gcs(data_path + 'embedding.pkl')
+        utils.sync_file_gcs(data_path + 'softmax_w.pkl')
+        utils.sync_file_gcs(data_path + 'softmax_b.pkl')
+
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
         self.C = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.b = utils.load_pkl(data_path + 'softmax_b.pkl')

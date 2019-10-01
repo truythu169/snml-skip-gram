@@ -90,21 +90,41 @@ def save_pkl(data, filename):
     output.close()
 
     # upload to gcs
-    gcs_filename = convert_local_path_to_gcs(filename)
-    upload_to_gcs(gcs_filename, filename)
+    sync_file_gcs(filename)
 
 
 def load_pkl(filename):
     """ Load data to pickle """
     # download from gcs
-    if not os.path.exists(filename):
-        gcs_filename = convert_local_path_to_gcs(filename)
-        download_from_gcs(gcs_filename, filename)
+    sync_file_gcs(filename)
 
     input = open(filename, 'rb')
     data = pickle.load(input)
     input.close()
     return data
+
+
+def sync_file_gcs(filename):
+    if env['GCS']['sync'] == 'no':
+        return
+
+    gcs_filename = convert_local_path_to_gcs(filename)
+    project_id = env['GCS']['project_id']
+    bucket_name = env['GCS']['bucket']
+
+    client = gcs.Client(project_id)
+    bucket = client.get_bucket(bucket_name)
+    blob = gcs.Blob(gcs_filename, bucket)
+
+    if blob.exists():
+        # create output directory
+        output_dictionary = os.path.dirname(filename)
+        if not os.path.exists(output_dictionary):
+            os.makedirs(output_dictionary)
+
+        download_from_gcs(gcs_filename, filename)
+    else:
+        upload_to_gcs(gcs_filename, filename)
 
 
 def convert_local_path_to_gcs(local_file):

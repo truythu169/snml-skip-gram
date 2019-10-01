@@ -19,6 +19,11 @@ class SkipGram:
         if not os.path.exists(self.output_dictionary):
             os.makedirs(self.output_dictionary)
 
+        # sync with gcs
+        utils.sync_file_gcs(input_path + config['TRAIN']['vocab_dict'])
+        utils.sync_file_gcs(input_path + config['TRAIN']['context_dict'])
+        utils.sync_file_gcs(input_path + config['TRAIN']['train_data'])
+
         # read dictionaries
         self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
         self.int_to_cont = utils.load_pkl(input_path + config['TRAIN']['context_dict'])
@@ -108,9 +113,8 @@ class SkipGram:
 
         output.close()
 
-        # upload to gcs
-        gcs_filename = utils.convert_local_path_to_gcs(filename)
-        utils.upload_to_gcs(gcs_filename, filename)
+        # sync with to gcs
+        utils.sync_file_gcs(filename)
 
     def export_model(self):
         utils.save_pkl(self.embedding, self.output_dictionary + config['TRAIN']['embedding_pkl'])
