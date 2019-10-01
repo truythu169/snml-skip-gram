@@ -104,7 +104,7 @@ def load_pkl(filename):
     return data
 
 
-def sync_file_gcs(filename):
+def sync_file_gcs(filename, force_update=False):
     if env['GCS']['sync'] == 'no':
         return
 
@@ -118,6 +118,8 @@ def sync_file_gcs(filename):
 
     if blob.exists():
         # create output directory
+        if os.path.exists(filename) and not force_update:
+            return
         output_dictionary = os.path.dirname(filename)
         if not os.path.exists(output_dictionary):
             os.makedirs(output_dictionary)

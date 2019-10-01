@@ -9,21 +9,22 @@ if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/processed data/top_30000_words.txt')
 
-    suffix = ''
-    dimension_list = [65, 70, 75, 80]
+    suffix = '_1'
+    dimension_list = [50, 55, 60, 65, 70, 75, 80, 90, 100, 125, 150, 200, 300, 400]
     wa_list = []
     ws_list = []
 
     for dimension in dimension_list:
-        filename = '../../output/full/2/{}dim/embedding-e={}-n_sampled=3000-epochs=31-batch_size=10000.txt'.format(dimension, dimension)
+        filename = '../../output/full/{}dim/embedding-e={}-n_sampled=3000-epochs=31-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
         utils.sync_file_gcs(filename)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 
-        wa_result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
+        # wa_result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
         ws_result = wordsim.evaluate(embedding)
+        wordsim.pprint(ws_result)
 
-        wa_list.append(wa_result['all'])
+        # wa_list.append(wa_result['all'])
         ws_list.append(ws_result['EN-WS-353-ALL'][2])
 
     print('Word analogy: ')
