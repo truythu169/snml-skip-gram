@@ -65,7 +65,7 @@ class SkipGram:
                 num_classes=self.n_context)
 
             cost = tf.reduce_mean(loss)
-            optimizer = tf.train.GradientDescentOptimizer(0.01).minimize(cost)
+            optimizer = tf.train.MomentumOptimizer(learning_rate=0.01, momentum=0.9).minimize(cost)
 
         with tf.Session(graph=train_graph) as sess:
             iteration = 1
