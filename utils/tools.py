@@ -171,17 +171,10 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
     return negative_samples
 
 
-def sample_contexts(context_distribution, context_path, sample_size=1000, loop=0, from_file=True):
+def sample_contexts(context_distribution, contexts, file_name, sample_size=1000, loop=0, from_file=True):
     if not from_file:
         samples = _sample_context(context_distribution, sample_size)
         return samples
-
-    # Check if sample context file exits
-    file_name = os.path.join(context_path, 'sample_contexts_{}.pkl'.format(sample_size))
-    if os.path.exists(file_name):
-        contexts = load_pkl(file_name)
-    else:
-        contexts = []
 
     # Sample contexts
     if loop + 1 > len(contexts):

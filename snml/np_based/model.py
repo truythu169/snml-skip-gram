@@ -2,6 +2,7 @@ from multiprocessing import Pool
 import numpy as np
 import utils.tools as utils
 import math as ma
+import os
 import multiprocessing
 
 
@@ -80,10 +81,17 @@ class Model:
         return snml_length
 
     def snml_length_sampling(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
+        # Check if sample context file exits
+        sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
+        if os.path.exists(sample_contexts_file_name):
+            contexts = utils.load_pkl(sample_contexts_file_name)
+        else:
+            contexts = []
+
         sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
-                                                                      self.context_path,
+                                                                      contexts, sample_contexts_file_name,
                                                                       n_context_sample,
-                                                                      self.t - self.t_default, from_file=False)
+                                                                      self.t - self.t_default, from_file=True)
         prob_sum = 0
         probs = []
 
@@ -104,10 +112,17 @@ class Model:
         return snml_length, probs
 
     def snml_length_sampling_multiprocess(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
+        # Check if sample context file exits
+        sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
+        if os.path.exists(sample_contexts_file_name):
+            contexts = utils.load_pkl(sample_contexts_file_name)
+        else:
+            contexts = []
+
         sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
-                                                                      self.context_path,
+                                                                      contexts, sample_contexts_file_name,
                                                                       n_context_sample,
-                                                                      self.t - self.t_default, from_file=False)
+                                                                      self.t - self.t_default, from_file=True)
 
         # implement pools
         job_args = [(word, c, epochs, neg_size) for c in sample_contexts]
