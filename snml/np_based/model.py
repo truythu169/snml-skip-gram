@@ -18,7 +18,7 @@ class Model:
         self.context_path = context_path
 
         # Load context distribution
-        self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl', local=True)
+        self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')
 
         # adam optimizer initialize
         self.t = 256040
