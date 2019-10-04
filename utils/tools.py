@@ -177,7 +177,11 @@ context_distribution_file = os.path.join(root_dir, 'contexts/context_distributio
 context_distribution = load_pkl(context_distribution_file)
 
 
-def sample_contexts(sample_size=1000, loop=0):
+def sample_contexts(sample_size=1000, loop=0, from_file=True):
+    if not from_file:
+        samples = _sample_context(sample_size)
+        return samples
+
     # Check if sample context file exits
     file_name = os.path.join(root_dir, 'contexts/sample_contexts_{}.pkl'.format(sample_size))
     if os.path.exists(file_name):
@@ -188,21 +192,26 @@ def sample_contexts(sample_size=1000, loop=0):
     # Sample contexts
     if loop + 1 > len(contexts):
         for i in range(loop + 1 - len(contexts)):
-            draw = np.random.multinomial(sample_size, context_distribution)
-            sample_ids = np.where(draw > 0)[0]
-
-            samples = []
-            samples_prob = []
-            for context_id in sample_ids:
-                samples.extend([context_id] * draw[context_id])
-                samples_prob.extend([context_distribution[context_id]] * draw[context_id])
-
-            contexts.append((samples, samples_prob))
+            samples = _sample_context(sample_size)
+            contexts.append(samples)
 
         # Save result back to pkl
         save_pkl(contexts, file_name)
 
     return contexts[loop]
+
+
+def _sample_context(sample_size=1000):
+    draw = np.random.multinomial(sample_size, context_distribution)
+    sample_ids = np.where(draw > 0)[0]
+
+    samples = []
+    samples_prob = []
+    for context_id in sample_ids:
+        samples.extend([context_id] * draw[context_id])
+        samples_prob.extend([context_distribution[context_id]] * draw[context_id])
+
+    return samples, samples_prob
 
 
 def sample_learning_data(data_path, max_n_file, rand_size):
