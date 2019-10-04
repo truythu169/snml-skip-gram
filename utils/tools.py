@@ -9,6 +9,11 @@ from utils.settings import config, env
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env['GCS']['app_credential']
+project_id = env['GCS']['project_id']
+bucket_name = env['GCS']['bucket']
+
+# root directory path
+root_dir = os.path.dirname(os.path.realpath(__file__))
 
 
 def preprocess(text, min_word=20):
@@ -90,43 +95,18 @@ def save_pkl(data, filename):
     output.close()
 
     # upload to gcs
-    sync_file_gcs(filename)
+    upload_to_gcs(filename, force_update=True)
 
 
 def load_pkl(filename):
     """ Load data to pickle """
     # download from gcs
-    sync_file_gcs(filename)
+    download_from_gcs(filename, force_update=True)
 
     input = open(filename, 'rb')
     data = pickle.load(input)
     input.close()
     return data
-
-
-def sync_file_gcs(filename, force_update=False):
-    if env['GCS']['sync'] == 'no':
-        return
-
-    gcs_filename = convert_local_path_to_gcs(filename)
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
-
-    client = gcs.Client(project_id)
-    bucket = client.get_bucket(bucket_name)
-    blob = gcs.Blob(gcs_filename, bucket)
-
-    if blob.exists():
-        # create output directory
-        if os.path.exists(filename) and not force_update:
-            return
-        output_dictionary = os.path.dirname(filename)
-        if not os.path.exists(output_dictionary):
-            os.makedirs(output_dictionary)
-
-        download_from_gcs(gcs_filename, filename)
-    else:
-        upload_to_gcs(gcs_filename, filename)
 
 
 def convert_local_path_to_gcs(local_file):
@@ -135,24 +115,36 @@ def convert_local_path_to_gcs(local_file):
     return gcs_file
 
 
-def download_from_gcs(gcs_path, local_path):
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
+def download_from_gcs(local_path, force_update=False):
+    if env['GCS']['sync'] == 'no':
+        return
 
+    gcs_path = convert_local_path_to_gcs(local_path)
     client = gcs.Client(project_id)
     bucket = client.get_bucket(bucket_name)
     blob = gcs.Blob(gcs_path, bucket)
+
+    if os.path.exists(local_path) and not force_update:
+        return
+
+    output_dictionary = os.path.dirname(local_path)
+    if not os.path.exists(output_dictionary):
+        os.makedirs(output_dictionary)
 
     blob.download_to_filename(local_path)
 
 
-def upload_to_gcs(gcs_path, local_path):
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
+def upload_to_gcs(local_path, force_update=False):
+    if env['GCS']['sync'] == 'no':
+        return
 
+    gcs_path = convert_local_path_to_gcs(local_path)
     client = gcs.Client(project_id)
     bucket = client.get_bucket(bucket_name)
     blob = gcs.Blob(gcs_path, bucket)
+
+    if blob.exists() and not force_update:
+        return
 
     blob.upload_from_filename(local_path)
 
@@ -180,14 +172,12 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
     return negative_samples
 
 
+# Load context distribution
+context_distribution_file = os.path.join(root_dir, 'contexts/context_distribution.pkl')
+context_distribution = load_pkl(context_distribution_file)
+
+
 def sample_contexts(sample_size=1000, loop=0):
-    # root directory path
-    root_dir = os.path.dirname(os.path.realpath(__file__))
-
-    # Load context distribution
-    context_distribution_file = os.path.join(root_dir, 'contexts/context_distribution.pkl')
-    context_distribution = load_pkl(context_distribution_file)
-
     # Check if sample context file exits
     file_name = os.path.join(root_dir, 'contexts/sample_contexts_{}.pkl'.format(sample_size))
     if os.path.exists(file_name):

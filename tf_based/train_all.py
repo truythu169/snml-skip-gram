@@ -1,7 +1,7 @@
 from tf_based.skip_gram import SkipGram
 
 if __name__ == "__main__":
-    input_path = '../data/processed data/'
+    input_path = '../data/text8/'
     output_path = '../output/1/'
 
     dimension_list = [25, 75, 125, 175, 225, 275]
