@@ -12,9 +12,6 @@ os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env['GCS']['app_credential']
 project_id = env['GCS']['project_id']
 bucket_name = env['GCS']['bucket']
 
-# root directory path
-root_dir = os.path.dirname(os.path.realpath(__file__))
-
 
 def preprocess(text, min_word=20):
     # Load stop words
@@ -88,20 +85,22 @@ def create_lookup_tables(words):
     return [vocab_to_int, int_to_vocab, cont_to_int, int_to_cont]
 
 
-def save_pkl(data, filename):
+def save_pkl(data, filename, local=False):
     """ Save data to file """
     output = open(filename, 'wb')
     pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
     output.close()
 
     # upload to gcs
-    upload_to_gcs(filename, force_update=True)
+    if not local:
+        upload_to_gcs(filename, force_update=True)
 
 
-def load_pkl(filename):
+def load_pkl(filename, local=False):
     """ Load data to pickle """
     # download from gcs
-    download_from_gcs(filename, force_update=True)
+    if not local:
+        download_from_gcs(filename, force_update=True)
 
     input = open(filename, 'rb')
     data = pickle.load(input)
@@ -172,18 +171,13 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
     return negative_samples
 
 
-# Load context distribution
-context_distribution_file = os.path.join(root_dir, 'contexts/context_distribution.pkl')
-context_distribution = load_pkl(context_distribution_file)
-
-
-def sample_contexts(sample_size=1000, loop=0, from_file=True):
+def sample_contexts(context_distribution, context_path, sample_size=1000, loop=0, from_file=True):
     if not from_file:
-        samples = _sample_context(sample_size)
+        samples = _sample_context(context_distribution, sample_size)
         return samples
 
     # Check if sample context file exits
-    file_name = os.path.join(root_dir, 'contexts/sample_contexts_{}.pkl'.format(sample_size))
+    file_name = os.path.join(context_path, 'sample_contexts_{}.pkl'.format(sample_size))
     if os.path.exists(file_name):
         contexts = load_pkl(file_name)
     else:
@@ -192,7 +186,7 @@ def sample_contexts(sample_size=1000, loop=0, from_file=True):
     # Sample contexts
     if loop + 1 > len(contexts):
         for i in range(loop + 1 - len(contexts)):
-            samples = _sample_context(sample_size)
+            samples = _sample_context(context_distribution, sample_size)
             contexts.append(samples)
 
         # Save result back to pkl
@@ -201,7 +195,7 @@ def sample_contexts(sample_size=1000, loop=0, from_file=True):
     return contexts[loop]
 
 
-def _sample_context(sample_size=1000):
+def _sample_context(context_distribution, sample_size=1000):
     draw = np.random.multinomial(sample_size, context_distribution)
     sample_ids = np.where(draw > 0)[0]
 

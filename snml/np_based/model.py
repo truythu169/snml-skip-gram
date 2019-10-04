@@ -7,12 +7,7 @@ import multiprocessing
 
 class Model:
 
-    def __init__(self, data_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08):
-        # sync with gcs
-        utils.download_from_gcs(data_path + 'embedding.pkl', force_update=True)
-        utils.download_from_gcs(data_path + 'softmax_w.pkl', force_update=True)
-        utils.download_from_gcs(data_path + 'softmax_b.pkl', force_update=True)
-
+    def __init__(self, data_path, context_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08):
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
         self.C = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.b = utils.load_pkl(data_path + 'softmax_b.pkl')
@@ -20,6 +15,10 @@ class Model:
         self.K = self.E.shape[1]
         self.V_dash = self.C.shape[0]
         self.data_path = data_path
+        self.context_path = context_path
+
+        # Load context distribution
+        self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl', local=True)
 
         # adam optimizer initialize
         self.t = 256040
@@ -81,7 +80,10 @@ class Model:
         return snml_length
 
     def snml_length_sampling(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
-        sample_contexts, sample_contexts_prob = utils.sample_contexts(n_context_sample, self.t - self.t_default, from_file=False)
+        sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
+                                                                      self.context_path,
+                                                                      n_context_sample,
+                                                                      self.t - self.t_default, from_file=False)
         prob_sum = 0
         probs = []
 
@@ -102,7 +104,10 @@ class Model:
         return snml_length, probs
 
     def snml_length_sampling_multiprocess(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
-        sample_contexts, sample_contexts_prob = utils.sample_contexts(n_context_sample, self.t - self.t_default, from_file=False)
+        sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
+                                                                      self.context_path,
+                                                                      n_context_sample,
+                                                                      self.t - self.t_default, from_file=False)
 
         # implement pools
         job_args = [(word, c, epochs, neg_size) for c in sample_contexts]
