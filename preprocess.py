@@ -22,17 +22,17 @@ if __name__ == "__main__":
     data = RawDataset(args.input, args.output)
 
     # save processed data back to file
-    # print('Writing processed data back to file...')
-    # output = open(args.output + config['PREPROCESS']['output_data'], "w", newline='')
-    # writer = csv.writer(output)
-    # batches = data.get_batches(args.batch_size, args.window_size)
-    # count = 0
-    # for datum in batches:
-    #     datum = np.array(datum).T
-    #     np.random.shuffle(datum)
-    #     writer.writerows(datum)
-    #     count += datum.shape[0]
-    # output.close()
-    #
-    # print('{} rows of data processed!'.format(count))
+    print('Writing processed data back to file...')
+    output = open(args.output + config['PREPROCESS']['output_data'], "w", newline='')
+    writer = csv.writer(output)
+    batches = data.get_batches(args.batch_size, args.window_size)
+    count = 0
+    for datum in batches:
+        datum = np.array(datum).T
+        np.random.shuffle(datum)
+        writer.writerows(datum)
+        count += datum.shape[0]
+    output.close()
+
+    print('{} rows of data processed!'.format(count))
 

@@ -3,11 +3,11 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_path', default='../../data/text8/', type=str)
-    parser.add_argument('--output_path', default='../../output/', type=str)
+    parser.add_argument('--input_path', default='../../data/wiki/', type=str)
+    parser.add_argument('--output_path', default='../../output/wiki/', type=str)
     parser.add_argument('--n_embedding', default=50, type=int)
-    parser.add_argument('--n_sampled', default=6000, type=int)
-    parser.add_argument('--epochs', default=35, type=int)
+    parser.add_argument('--n_sampled', default=3000, type=int)
+    parser.add_argument('--epochs', default=31, type=int)
     parser.add_argument('--batch_size', default=10000, type=int)
     parser.add_argument('--print_step', default=1000, type=int)
     args = parser.parse_args()
