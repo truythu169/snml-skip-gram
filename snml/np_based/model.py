@@ -8,7 +8,8 @@ import multiprocessing
 
 class Model:
 
-    def __init__(self, data_path, context_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08):
+    def __init__(self, data_path, context_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08,
+                 n_context_sample=600):
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
         self.C = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.b = utils.load_pkl(data_path + 'softmax_b.pkl')
@@ -17,13 +18,20 @@ class Model:
         self.V_dash = self.C.shape[0]
         self.data_path = data_path
         self.context_path = context_path
+        self.n_context_sample = n_context_sample
+        self.scope = 0
 
         # Load context distribution
         self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')
+        # Check if sample context file exits
+        self.sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
+        if os.path.exists(self.sample_contexts_file_name):
+            self.contexts = utils.load_pkl(self.sample_contexts_file_name)
+        else:
+            self.contexts = []
 
         # adam optimizer initialize
-        self.t = 256040
-        self.t_default = 256040
+        self.t = 396893
         self.beta1 = beta1
         self.beta2 = beta2
         self.lr = learning_rate
@@ -62,6 +70,22 @@ class Model:
 
         return prob
 
+    def _sample_contexts(self, from_file=True):
+        if not from_file:
+            samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+            return samples
+
+        # Sample contexts
+        if self.scope + 1 > len(self.contexts):
+            for i in range(self.scope + 1 - len(self.contexts)):
+                samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+                self.contexts.append(samples)
+
+            # Save result back to pkl
+            utils.save_pkl(self.contexts, self.sample_contexts_file_name)
+
+        return self.contexts[self.scope]
+
     def snml_length(self, word, context, epochs=20, neg_size=200):
         prob_sum = 0
         iteration = 0
@@ -80,49 +104,31 @@ class Model:
         snml_length = - np.log(prob / prob_sum)
         return snml_length
 
-    def snml_length_sampling(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
-        # Check if sample context file exits
-        sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
-        if os.path.exists(sample_contexts_file_name):
-            contexts = utils.load_pkl(sample_contexts_file_name)
-        else:
-            contexts = []
-
-        sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
-                                                                      contexts, sample_contexts_file_name,
-                                                                      n_context_sample,
-                                                                      self.t - self.t_default, from_file=True)
+    def snml_length_sampling(self, word, context, epochs=20, neg_size=200):
+        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=True)
         prob_sum = 0
         probs = []
 
         # Update all other context
-        for i in range(n_context_sample):
+        for i in range(self.n_context_sample):
             c = sample_contexts[i]
             c_prob = sample_contexts_prob[i]
 
             prob = self.train(word, c, epochs, neg_size)
             prob_sum += prob / c_prob
             probs.append(prob)
-        prob_sum = prob_sum / n_context_sample
+        prob_sum = prob_sum / self.n_context_sample
 
         # Update true context and save weights
         prob = self.train(word, context, epochs, neg_size, update_weights=True)
         snml_length = - np.log(prob / prob_sum)
+        self.scope += 1
 
         return snml_length, probs
 
-    def snml_length_sampling_multiprocess(self, word, context, epochs=20, neg_size=200, n_context_sample=600):
-        # Check if sample context file exits
-        sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
-        if os.path.exists(sample_contexts_file_name):
-            contexts = utils.load_pkl(sample_contexts_file_name)
-        else:
-            contexts = []
-
-        sample_contexts, sample_contexts_prob = utils.sample_contexts(self.context_distribution,
-                                                                      contexts, sample_contexts_file_name,
-                                                                      n_context_sample,
-                                                                      self.t - self.t_default, from_file=True)
+    def snml_length_sampling_multiprocess(self, word, context, epochs=20, neg_size=200):
+        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=True)
+        print(self.t)
 
         # implement pools
         job_args = [(word, c, epochs, neg_size) for c in sample_contexts]
@@ -133,13 +139,14 @@ class Model:
 
         # gather sum of probabilities
         prob_sum = 0
-        for i in range(n_context_sample):
+        for i in range(self.n_context_sample):
             prob_sum += probs[i] / sample_contexts_prob[i]
-        prob_sum = prob_sum / n_context_sample
+        prob_sum = prob_sum / self.n_context_sample
 
         # Update true context and save weights
         prob = self.train(word, context, epochs, neg_size, update_weights=True)
         snml_length = - np.log(prob / prob_sum)
+        self.scope += 1
 
         return snml_length, probs
 
