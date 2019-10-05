@@ -128,7 +128,6 @@ class Model:
 
     def snml_length_sampling_multiprocess(self, word, context, epochs=20, neg_size=200):
         sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=True)
-        print(self.t)
 
         # implement pools
         job_args = [(word, c, epochs, neg_size) for c in sample_contexts]
