@@ -19,7 +19,7 @@ class Embedding:
         utils.download_from_gcs(filename)
 
         # load data from file
-        f = open(filename, "r")
+        f = open(filename, "r", encoding='utf-8')
         words = []
         vectors = []
         for wn, line in enumerate(f):
