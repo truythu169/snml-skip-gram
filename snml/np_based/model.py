@@ -25,10 +25,7 @@ class Model:
         self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')
         # Check if sample context file exits
         self.sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
-        if os.path.exists(self.sample_contexts_file_name):
-            self.contexts = utils.load_pkl(self.sample_contexts_file_name)
-        else:
-            self.contexts = []
+        self.contexts = utils.load_pkl(self.sample_contexts_file_name)
 
         # adam optimizer initialize
         self.t = 396893
