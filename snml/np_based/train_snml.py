@@ -10,6 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
     parser.add_argument('--scope', default=10, type=int)
+    parser.add_argument('--epochs', default=31, type=int)
     args = parser.parse_args()
 
     # read snml train file
@@ -25,7 +26,7 @@ if __name__ == "__main__":
         w = data[i][0]
         c = data[i][1]
 
-        length, probs = model.snml_length_sampling_multiprocess(w, c, epochs=31, neg_size=3000)
+        length, probs = model.snml_length_sampling_multiprocess(w, c, epochs=args.epochs, neg_size=3000)
         snml_lengths.append(length)
 
         # print process

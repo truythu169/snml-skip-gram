@@ -145,7 +145,6 @@ class SkipGram:
             try:
                 while True:
                     train_loss, _ = self.sess.run([self.cost, self.optimizer])
-                    print('XXXXX')
             except tf.errors.OutOfRangeError:
                 print("End of Scope")
 
