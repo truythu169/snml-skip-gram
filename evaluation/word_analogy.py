@@ -38,7 +38,6 @@ class WordAnalogy:
         self.top_words = []
 
     def set_top_words(self, filename):
-        utils.sync_file_gcs(filename)
         with open(filename, "r") as f:
             words = f.read().splitlines()
         self.top_words = set(words)
@@ -136,6 +135,6 @@ class WordAnalogy:
 
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
-    word_analogy.set_top_words('../../data/processed data/top_30000_words.txt')
-    embedding = Embedding.from_file('../../output/full/2/75dim/embedding-e=75-n_sampled=3000-epochs=31-batch_size=10000.txt')
+    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
+    embedding = Embedding.from_file('../../output/wiki/full/16epochs/2/100dim/embedding-e=100-n_sampled=3000-epochs=16-batch_size=10000.txt')
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)

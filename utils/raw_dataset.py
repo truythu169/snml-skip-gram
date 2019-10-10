@@ -12,7 +12,7 @@ class RawDataset:
 
         # read data from file
         print('Reading file: ', data_file)
-        with open(data_file) as f:
+        with open(data_file, encoding='utf-8') as f:
             text = f.read()
 
         # about our data
@@ -58,7 +58,7 @@ class RawDataset:
         utils.save_pkl(self.int_to_cont, dict_path + config['PREPROCESS']['int_to_cont'])
 
     def save_top_words(self):
-        output = open(self.output_path + '/top_{}_words.txt'.format(config['PREPROCESS']['n_top']), 'w')
+        output = open(self.output_path + '/top_{}_words.txt'.format(config['PREPROCESS']['n_top']), 'w', encoding='utf-8')
         for word, count in self.top_words:
             output.write(word + '\n')
         output.close()

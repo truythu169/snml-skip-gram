@@ -1,22 +1,20 @@
 from evaluation.wordsim import Wordsim
 from evaluation.word_analogy import WordAnalogy
 from utils.embedding import Embedding
-import utils.tools as utils
 
 
 if __name__ == "__main__":
     wordsim = Wordsim()
     word_analogy = WordAnalogy()
-    word_analogy.set_top_words('../../data/processed data/top_30000_words.txt')
+    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
 
-    suffix = '_1'
-    dimension_list = [50, 55, 60, 65, 70, 75, 80, 90, 100, 125, 150, 200, 300, 400]
+    suffix = ''
+    dimension_list = [65, 70, 75, 80, 90, 100, 125, 150, 200, 300, 400]
     wa_list = []
     ws_list = []
 
     for dimension in dimension_list:
-        filename = '../../output/full/{}dim/embedding-e={}-n_sampled=3000-epochs=31-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
-        utils.sync_file_gcs(filename)
+        filename = '../../output/full/3/{}dim/embedding-e={}-n_sampled=3000-epochs=31-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 

@@ -9,6 +9,8 @@ from utils.settings import config, env
 
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = env['GCS']['app_credential']
+project_id = env['GCS']['project_id']
+bucket_name = env['GCS']['bucket']
 
 
 def preprocess(text, min_word=20):
@@ -83,50 +85,27 @@ def create_lookup_tables(words):
     return [vocab_to_int, int_to_vocab, cont_to_int, int_to_cont]
 
 
-def save_pkl(data, filename):
+def save_pkl(data, filename, local=False):
     """ Save data to file """
     output = open(filename, 'wb')
     pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
     output.close()
 
     # upload to gcs
-    sync_file_gcs(filename)
+    if not local:
+        upload_to_gcs(filename, force_update=True)
 
 
-def load_pkl(filename):
+def load_pkl(filename, local=False):
     """ Load data to pickle """
     # download from gcs
-    sync_file_gcs(filename)
+    if not local:
+        download_from_gcs(filename, force_update=True)
 
     input = open(filename, 'rb')
     data = pickle.load(input)
     input.close()
     return data
-
-
-def sync_file_gcs(filename, force_update=False):
-    if env['GCS']['sync'] == 'no':
-        return
-
-    gcs_filename = convert_local_path_to_gcs(filename)
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
-
-    client = gcs.Client(project_id)
-    bucket = client.get_bucket(bucket_name)
-    blob = gcs.Blob(gcs_filename, bucket)
-
-    if blob.exists():
-        # create output directory
-        if os.path.exists(filename) and not force_update:
-            return
-        output_dictionary = os.path.dirname(filename)
-        if not os.path.exists(output_dictionary):
-            os.makedirs(output_dictionary)
-
-        download_from_gcs(gcs_filename, filename)
-    else:
-        upload_to_gcs(gcs_filename, filename)
 
 
 def convert_local_path_to_gcs(local_file):
@@ -135,24 +114,36 @@ def convert_local_path_to_gcs(local_file):
     return gcs_file
 
 
-def download_from_gcs(gcs_path, local_path):
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
+def download_from_gcs(local_path, force_update=False):
+    if env['GCS']['sync'] == 'no':
+        return
 
+    gcs_path = convert_local_path_to_gcs(local_path)
     client = gcs.Client(project_id)
     bucket = client.get_bucket(bucket_name)
     blob = gcs.Blob(gcs_path, bucket)
+
+    if os.path.exists(local_path) and not force_update:
+        return
+
+    output_dictionary = os.path.dirname(local_path)
+    if not os.path.exists(output_dictionary):
+        os.makedirs(output_dictionary)
 
     blob.download_to_filename(local_path)
 
 
-def upload_to_gcs(gcs_path, local_path):
-    project_id = env['GCS']['project_id']
-    bucket_name = env['GCS']['bucket']
+def upload_to_gcs(local_path, force_update=False):
+    if env['GCS']['sync'] == 'no':
+        return
 
+    gcs_path = convert_local_path_to_gcs(local_path)
     client = gcs.Client(project_id)
     bucket = client.get_bucket(bucket_name)
     blob = gcs.Blob(gcs_path, bucket)
+
+    if blob.exists() and not force_update:
+        return
 
     blob.upload_from_filename(local_path)
 
@@ -180,39 +171,34 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
     return negative_samples
 
 
-def sample_contexts(sample_size=1000, loop=0):
-    # root directory path
-    root_dir = os.path.dirname(os.path.realpath(__file__))
+# def sample_contexts(context_distribution, contexts, file_name, sample_size=1000, loop=0, from_file=True):
+#     if not from_file:
+#         samples = _sample_context(context_distribution, sample_size)
+#         return samples
+#
+#     # Sample contexts
+#     if loop + 1 > len(contexts):
+#         for i in range(loop + 1 - len(contexts)):
+#             samples = _sample_context(context_distribution, sample_size)
+#             contexts.append(samples)
+#
+#         # Save result back to pkl
+#         save_pkl(contexts, file_name)
+#
+#     return contexts[loop]
 
-    # Load context distribution
-    context_distribution_file = os.path.join(root_dir, 'contexts/context_distribution.pkl')
-    context_distribution = load_pkl(context_distribution_file)
 
-    # Check if sample context file exits
-    file_name = os.path.join(root_dir, 'contexts/sample_contexts_{}.pkl'.format(sample_size))
-    if os.path.exists(file_name):
-        contexts = load_pkl(file_name)
-    else:
-        contexts = []
+def sample_context(context_distribution, sample_size=1000):
+    draw = np.random.multinomial(sample_size, context_distribution)
+    sample_ids = np.where(draw > 0)[0]
 
-    # Sample contexts
-    if loop + 1 > len(contexts):
-        for i in range(loop + 1 - len(contexts)):
-            draw = np.random.multinomial(sample_size, context_distribution)
-            sample_ids = np.where(draw > 0)[0]
+    samples = []
+    samples_prob = []
+    for context_id in sample_ids:
+        samples.extend([context_id] * draw[context_id])
+        samples_prob.extend([context_distribution[context_id]] * draw[context_id])
 
-            samples = []
-            samples_prob = []
-            for context_id in sample_ids:
-                samples.extend([context_id] * draw[context_id])
-                samples_prob.extend([context_distribution[context_id]] * draw[context_id])
-
-            contexts.append((samples, samples_prob))
-
-        # Save result back to pkl
-        save_pkl(contexts, file_name)
-
-    return contexts[loop]
+    return samples, samples_prob
 
 
 def sample_learning_data(data_path, max_n_file, rand_size):

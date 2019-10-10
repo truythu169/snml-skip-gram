@@ -6,17 +6,19 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/convergence_test/3000samples/31epochs/snml/75dim/', type=str)
-    parser.add_argument('--snml_train_file', default='../../../data/processed data/scope.csv', type=str)
-    parser.add_argument('--scope', default=100, type=int)
+    parser.add_argument('--model', default='../../../output/snml/3000samples/31epochs/50dim/', type=str)
+    parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
+    parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
+    parser.add_argument('--scope', default=10, type=int)
+    parser.add_argument('--epochs', default=31, type=int)
     args = parser.parse_args()
 
     # read snml train file
-    utils.sync_file_gcs(args.snml_train_file)
+    utils.download_from_gcs(args.snml_train_file)
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
-    model = Model(args.model)
+    model = Model(args.model, args.context_path, n_context_sample=600)
     snml_lengths = []
     print_step = 5
     start = time.time()
@@ -24,7 +26,7 @@ if __name__ == "__main__":
         w = data[i][0]
         c = data[i][1]
 
-        length, probs = model.snml_length_sampling_multiprocess(w, c, epochs=31, neg_size=3000, n_context_sample=600)
+        length, probs = model.snml_length_sampling_multiprocess(w, c, epochs=args.epochs, neg_size=3000)
         snml_lengths.append(length)
 
         # print process
@@ -43,4 +45,4 @@ if __name__ == "__main__":
     output.close()
 
     # upload to gcs
-    utils.sync_file_gcs(filename)
+    utils.upload_to_gcs(filename, force_update=True)
