@@ -6,7 +6,7 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/snml/3000samples/31epochs/50dim/', type=str)
+    parser.add_argument('--model', default='../../../output/text8/snml/3000samples/31epochs/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
     parser.add_argument('--scope', default=10, type=int)

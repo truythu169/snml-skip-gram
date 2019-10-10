@@ -79,6 +79,7 @@ class Model:
                 self.contexts.append(samples)
 
             # Save result back to pkl
+            print('Uploading sample context file, scope: ', self.scope)
             utils.save_pkl(self.contexts, self.sample_contexts_file_name)
 
         return self.contexts[self.scope]
