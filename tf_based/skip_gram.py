@@ -85,7 +85,7 @@ class SkipGram:
                 num_classes=self.n_context)
 
             self.cost = tf.reduce_mean(self.loss)
-            self.optimizer = tf.train.AdamOptimizer().minimize(self.cost)
+            self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.1, momentum=0.9).minimize(self.cost)
 
             # init variables
             self.g_init = tf.global_variables_initializer()
