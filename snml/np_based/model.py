@@ -224,9 +224,7 @@ class Model:
             vb_train[labels] = vb
 
         # get probability
-        neg = utils.sample_negative(neg_size, {c}, vocab_size=self.V_dash)
-        labels = [c] + neg
-        z = np.dot(e, C_train[labels].T) + b_train[labels]
+        z = np.dot(e, self.C.T) + self.b
         exp_z = np.exp(z)
         prob = exp_z[0] / np.sum(exp_z)
 
@@ -246,7 +244,7 @@ class Model:
             # back propagation
             dz = exp_z / sum_exp_z
             dz[0] -= 1  # for true label
-            dz = dz / 100000
+            dz = dz / 10000
             dC = np.dot(dz.reshape(-1, 1), e.reshape(1, -1))
             db = dz
             dE = np.dot(dz.reshape(1, -1), self.C[labels]).reshape(-1)
@@ -279,9 +277,7 @@ class Model:
             self.vb_t[labels] = vb
 
         # get probability
-        neg = utils.sample_negative(neg_size, {c}, vocab_size=self.V_dash)
-        labels = [c] + neg
-        z = np.dot(self.E[w], self.C[labels].T) + self.b[labels]
+        z = np.dot(self.E[w], self.C.T) + self.b
         exp_z = np.exp(z)
         prob = exp_z[0] / np.sum(exp_z)
 

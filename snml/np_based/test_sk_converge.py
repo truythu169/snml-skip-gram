@@ -14,8 +14,13 @@ if __name__ == "__main__":
         context = contexts[i]
 
         p_sum = []
+        diff_sum = []
         for j in range(100):
+            p_before = model.get_prob(word, context)
             p = model.train(word, context, epochs=31, neg_size=3000)
             p_sum.append(-np.log(p))
+            diff_sum.append(-np.log(p) + np.log(p_before))
 
         print('Mean: {:.4f} Min: {:.4f} Max: {:.4f} std: {:.4f}'.format(np.mean(p_sum), min(p_sum), max(p_sum), np.std(p_sum)))
+        print('Mean diff: {:.4f} Min: {:.4f} Max: {:.4f} std: {:.4f}'.format(np.mean(diff_sum), min(diff_sum),
+                                                                             max(diff_sum), np.std(diff_sum)))
