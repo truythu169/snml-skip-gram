@@ -224,7 +224,7 @@ class Model:
             vb_train[labels] = vb
 
         # get probability
-        z = np.dot(e, self.C.T) + self.b
+        z = np.dot(e, C_train.T) + b_train
         exp_z = np.exp(z)
         prob = exp_z[0] / np.sum(exp_z)
 
