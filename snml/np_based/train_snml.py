@@ -1,8 +1,10 @@
 from snml.np_based.model import Model
 import time
+import os
 import numpy as np
 import argparse
 import utils.tools as utils
+
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -37,7 +39,7 @@ if __name__ == "__main__":
 
         # save steps
         if (i + 1) % 100 == 0:
-            step_path = args.model + '{}-step/'.format(i)
+            step_path = args.model + '{}-step/'.format(i + 1)
             filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
             utils.save_pkl(snml_lengths, filename)
 
