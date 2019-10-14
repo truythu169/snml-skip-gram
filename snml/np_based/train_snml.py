@@ -35,6 +35,12 @@ if __name__ == "__main__":
             print('Run {} step in: {:.4f} sec'.format(i + 1, (end - start)))
             start = time.time()
 
+        # save steps
+        if (i + 1) % 100 == 0:
+            step_path = args.model + '{}-step/'.format(i)
+            filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
+            utils.save_pkl(snml_lengths, filename)
+
     print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
 
     # Save result to file
