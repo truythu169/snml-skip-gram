@@ -6,7 +6,7 @@ if __name__ == "__main__":
     model = Model('../../../output/text8/snml/3000samples/31epochs/100dim/',
                   '../../../data/text8/contexts/', n_context_sample=600)
 
-    words = [18000, 93, 4519, 506, 1687, 11469, 1188, 11469, 102, 8229, 2036]
+    words = [18000, 93, 4519, 506, 1687, 11469, 1188, 11469, 102, 8229]
     contexts = [12600, 1172, 1545, 22, 72, 1659, 4363, 41, 9023, 693]
 
     for i in range(len(words)):

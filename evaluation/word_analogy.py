@@ -120,7 +120,7 @@ class WordAnalogy:
             print("Category: %-30s, accuracy: %f (all: %d)" % (cat, acc, len(X_cat)))
             predictions[cat] = acc
 
-        # overrall
+        # overall
         total_count = 0
         acc = 0
         for cat in cat_list:
@@ -136,5 +136,5 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    embedding = Embedding.from_file('../../output/wiki/full/40epochs/1/100dim/embedding-e=100-n_sampled=5000-epochs=40-batch_size=10000.txt')
+    embedding = Embedding.from_file('../../output/wiki/full/30epochs/1/100dim/embedding-e=100-n_sampled=3400-epochs=30-batch_size=10000.txt')
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)

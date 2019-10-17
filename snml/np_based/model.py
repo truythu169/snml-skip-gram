@@ -226,7 +226,7 @@ class Model:
         # get probability
         z = np.dot(e, C_train.T) + b_train
         exp_z = np.exp(z)
-        prob = exp_z[0] / np.sum(exp_z)
+        prob = exp_z[c] / np.sum(exp_z)
 
         return prob
 
@@ -279,6 +279,6 @@ class Model:
         # get probability
         z = np.dot(self.E[w], self.C.T) + self.b
         exp_z = np.exp(z)
-        prob = exp_z[0] / np.sum(exp_z)
+        prob = exp_z[c] / np.sum(exp_z)
 
         return prob

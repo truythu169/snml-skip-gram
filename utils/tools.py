@@ -13,7 +13,7 @@ project_id = env['GCS']['project_id']
 bucket_name = env['GCS']['bucket']
 
 
-def preprocess(text, min_word=20):
+def preprocess(text, min_word=73):
     # Load stop words
     stop_words = stopwords.words('english')
     n_top = int(config['PREPROCESS']['n_top'])

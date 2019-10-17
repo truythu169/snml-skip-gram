@@ -6,7 +6,7 @@ import numpy as np
 
 if __name__ == "__main__":
     # read snml train file
-    data = np.genfromtxt('../../../data/processed data/scope.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
 
     # unique data
     str_data = set()
@@ -17,10 +17,10 @@ if __name__ == "__main__":
     data.sort()
 
     # full data
-    model_full = Model('../../../output/convergence_test/3000samples/31epochs/full/200dim/',
-                       '../context_distribution.pkl')
-    model_snml = Model('../../../output/convergence_test/3000samples/31epochs/snml/200dim/',
-                       '../context_distribution.pkl')
+    model_full = Model('../../../output/convergence_test/3000samples/31epochs/full/100dim/',
+                       '../../../data/text8/contexts/', n_context_sample=600)
+    model_snml = Model('../../../output/convergence_test/3000samples/31epochs/snml/100dim/',
+                       '../../../data/text8/contexts/', n_context_sample=600)
 
     p_full = []
     p_snml_b = []
@@ -34,9 +34,9 @@ if __name__ == "__main__":
         w = int(w)
         c = int(c)
 
-        ps_b = model_snml.get_neg_prob(w, c, neg_size=3000)
+        ps_b = model_snml.get_prob(w, c)
         ps_a = model_snml.train(w, c, epochs=31, neg_size=3000, update_weights=True)
-        pf = model_full.get_neg_prob(w, c, neg_size=3000)
+        pf = model_full.get_prob(w, c)
         print(ps_b, ps_a, pf)
 
         p_full.append(pf)
