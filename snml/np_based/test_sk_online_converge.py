@@ -17,9 +17,9 @@ if __name__ == "__main__":
     data.sort()
 
     # full data
-    model_full = Model('../../../output/convergence_test/3000samples/31epochs/full/100dim/',
+    model_full = Model('../../../output/convergence_test/3000samples/31epochs/full/150dim/',
                        '../../../data/text8/contexts/', n_context_sample=600)
-    model_snml = Model('../../../output/convergence_test/3000samples/31epochs/snml/100dim/',
+    model_snml = Model('../../../output/convergence_test/3000samples/31epochs/snml/150dim/',
                        '../../../data/text8/contexts/', n_context_sample=600)
 
     p_full = []

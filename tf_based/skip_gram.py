@@ -50,8 +50,15 @@ class SkipGram:
         self._set_training_file(filename)
         self._set_computation()
 
+        # training data
+        self.n_datums = utils.count_line(filename)
+        self.n_batches = self.n_datums // self.batch_size
+
         # output file
         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, n_sampled, epochs, batch_size)
+
+        print('Initialize Model with: {} samples, trying to run {} batches each epoch.'.format(self.n_datums,
+                                                                                               self.n_batches))
 
     def _set_training_file(self, file_name):
         with self.train_graph.as_default():
@@ -101,16 +108,19 @@ class SkipGram:
             self.assign_softmax_w = self.softmax_w_g.assign(self.softmax_w)
             self.assign_softmax_b = self.softmax_b_g.assign(self.softmax_b)
 
-    def train(self, print_step=1000):
+    def train(self, print_step=1000, stop_threshold=0):
         iteration = 1
         loss = 0
         losses = []
+        epoch_sum_loss = 0.
+        last_epoch_loss = 0.
 
         try:
             start = time.time()
             while True:
                 train_loss, _ = self.sess.run([self.cost, self.optimizer])
                 loss += train_loss
+                epoch_sum_loss += train_loss
                 losses.append(train_loss)
 
                 if iteration % print_step == 0:
@@ -120,6 +130,17 @@ class SkipGram:
                           "{:.4f} sec/ {} sample".format((end - start), self.batch_size * print_step))
                     loss = 0
                     start = time.time()
+
+                if iteration % self.n_batches == 0:
+                    epoch_loss = epoch_sum_loss / self.n_batches
+                    epoch_sum_loss = 0
+                    epoch_loss_diff = np.abs(epoch_loss - last_epoch_loss)
+                    last_epoch_loss = epoch_loss
+                    print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
+
+                    if epoch_loss_diff < stop_threshold:
+                        print('Loss diff: {}, stop training.'.format(epoch_loss_diff))
+                        break
 
                 iteration += 1
         except tf.errors.OutOfRangeError:

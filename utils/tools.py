@@ -114,6 +114,14 @@ def load_pkl(filename, local=False):
     return data
 
 
+def count_line(filename):
+    count = 0
+    with open(filename) as f:
+        for _ in f:
+            count += 1
+    return count
+
+
 def convert_local_path_to_gcs(local_file):
     parts = local_file.split('.')
     gcs_file = parts[-2][1:] + '.' + parts[-1]
