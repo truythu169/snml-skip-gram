@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('--epochs', default=16, type=int)
     parser.add_argument('--batch_size', default=10000, type=int)
     parser.add_argument('--print_step', default=1000, type=int)
-    parser.add_argument('--snml_dir', default='../../output/wiki/snml/', type=str)
+    parser.add_argument('--snml_dir', default='', type=str)
     args = parser.parse_args()
     snml = args.snml_dir != ''
 
