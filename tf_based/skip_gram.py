@@ -139,6 +139,10 @@ class SkipGram:
                     print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
 
                     if epoch_loss_diff < stop_threshold:
+                        self.epochs = iteration / self.n_batches
+                        # output file
+                        self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, self.n_sampled,
+                                                                                  self.epochs, self.batch_size)
                         print('Loss diff: {}, stop training.'.format(epoch_loss_diff))
                         break
 
