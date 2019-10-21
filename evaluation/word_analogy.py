@@ -1,5 +1,4 @@
 from utils.embedding import Embedding
-import utils.tools as utils
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from statistics import mean
@@ -120,7 +119,7 @@ class WordAnalogy:
             print("Category: %-30s, accuracy: %f (all: %d)" % (cat, acc, len(X_cat)))
             predictions[cat] = acc
 
-        # overrall
+        # overall
         total_count = 0
         acc = 0
         for cat in cat_list:

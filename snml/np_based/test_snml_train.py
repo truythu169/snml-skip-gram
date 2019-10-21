@@ -1,10 +1,8 @@
 from snml.np_based.model import Model
 import time
-import os
 import numpy as np
 import argparse
 import utils.tools as utils
-
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
@@ -22,11 +20,11 @@ if __name__ == "__main__":
     # Run snml
     model = Model(args.model, args.context_path, n_context_sample=600)
     snml_lengths = []
-    print_step = 5
+    print_step = 2
     start = time.time()
-    for i in range(args.scope):
-        w = data[i][0]
-        c = data[i][1]
+    for i in range(10):
+        w = data[0][0]
+        c = data[0][1]
 
         length, probs = model.snml_length_sampling_multiprocess(w, c, epochs=args.epochs, neg_size=3000)
         snml_lengths.append(length)
@@ -37,20 +35,5 @@ if __name__ == "__main__":
             print('Run {} step in: {:.4f} sec'.format(i + 1, (end - start)))
             start = time.time()
 
-        # save steps
-        if (i + 1) % 100 == 0:
-            step_path = args.model + '{}-step/'.format(i + 1)
-            filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
-            utils.save_pkl(snml_lengths, filename)
-
-    print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
-
-    # Save result to file
-    filename = args.model + 'scope-{}-snml_length.txt'.format(args.scope)
-    output = open(filename, 'w')
-    for i in snml_lengths:
-        output.write(str(i) + '\n')
-    output.close()
-
-    # upload to gcs
-    utils.upload_to_gcs(filename, force_update=True)
+    print('Mean: {:.4f} Min: {:.4f} Max: {:.4f} std: {:.4f}'.format(np.mean(snml_lengths), min(snml_lengths),
+                                                                    max(snml_lengths), np.std(snml_lengths)))

@@ -1,15 +1,13 @@
 from multiprocessing import Pool
 import numpy as np
 import utils.tools as utils
-import math as ma
 import os
 import multiprocessing
 
 
-class Model:
+class ModelMomentum:
 
-    def __init__(self, data_path, context_path, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-08,
-                 n_context_sample=600):
+    def __init__(self, data_path, context_path, learning_rate=0.001, beta=0.9, n_context_sample=600):
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
         self.C = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.b = utils.load_pkl(data_path + 'softmax_b.pkl')
@@ -27,22 +25,12 @@ class Model:
         self.sample_contexts_file_name = os.path.join(self.context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
         self.contexts = utils.load_pkl(self.sample_contexts_file_name)
 
-        # adam optimizer initialize
-        self.t = 396893
-        self.beta1 = beta1
-        self.beta2 = beta2
-        self.lr = learning_rate
-        self.epsilon = epsilon
-        self.beta1_t = beta1 ** self.t
-        self.beta2_t = beta2 ** self.t
-
-        # initialize things
-        self.mE_t = np.zeros((self.V, self.K))
-        self.mC_t = np.zeros((self.V_dash, self.K))
-        self.mb_t = np.zeros(self.V_dash)
-        self.vE_t = np.zeros((self.V, self.K))
-        self.vC_t = np.zeros((self.V_dash, self.K))
-        self.vb_t = np.zeros(self.V_dash)
+        # Momentum hyper parameters
+        self.learning_rate = learning_rate
+        self.beta = beta
+        self.vE = np.zeros((self.V, self.K))
+        self.vC = np.zeros((self.V_dash, self.K))
+        self.vb = np.zeros(self.V_dash)
 
     def get_prob(self, word, context):
         # forward propagation
@@ -50,9 +38,9 @@ class Model:
         z = np.dot(e, self.C.T) + self.b
         exp_z = np.exp(z)
         sum_exp_z = np.sum(exp_z)
-        y = exp_z / sum_exp_z
+        y = exp_z[context] / sum_exp_z
 
-        return y[context]
+        return y
 
     def get_neg_prob(self, word, context, neg_size=200):
         neg = utils.sample_negative(neg_size, {context}, vocab_size=self.V_dash)
@@ -66,23 +54,6 @@ class Model:
         prob = exp_z[0] / sum_exp_z
 
         return prob
-
-    def _sample_contexts(self, from_file=True):
-        if not from_file:
-            samples = utils.sample_context(self.context_distribution, self.n_context_sample)
-            return samples
-
-        # Sample contexts
-        if self.scope + 1 > len(self.contexts):
-            for i in range(self.scope + 1 - len(self.contexts)):
-                samples = utils.sample_context(self.context_distribution, self.n_context_sample)
-                self.contexts.append(samples)
-
-            # Save result back to pkl
-            print('Uploading sample context file, scope: ', self.scope)
-            utils.save_pkl(self.contexts, self.sample_contexts_file_name)
-
-        return self.contexts[self.scope]
 
     def snml_length(self, word, context, epochs=20, neg_size=200):
         prob_sum = 0
@@ -159,25 +130,15 @@ class Model:
             C_train = self.C.copy()
             b_train = self.b.copy()
 
-            me_train = self.mE_t[w].copy()
-            mC_train = self.mC_t.copy()
-            mb_train = self.mb_t.copy()
+            ve_train = self.vE[w].copy()
+            vC_train = self.vC.copy()
+            vb_train = self.vb.copy()
 
-            ve_train = self.vE_t[w].copy()
-            vC_train = self.vC_t.copy()
-            vb_train = self.vb_t.copy()
-
-            t_train = self.t
-            beta1_train = self.beta1_t
-            beta2_train = self.beta2_t
-
-            prob = self._train_neg_adam(e, c, epochs, neg_size, C_train, b_train, me_train, mC_train, mb_train, ve_train,
-                                        vC_train, vb_train, t_train, beta1_train, beta2_train)
+            prob = self._train_neg_adam(e, c, epochs, neg_size, C_train, b_train, ve_train, vC_train, vb_train)
 
         return prob
 
-    def _train_neg_adam(self, e, c, epochs, neg_size, C_train, b_train, me_train, mC_train, mb_train, ve_train,
-                        vC_train, vb_train, t_train, beta1_train, beta2_train):
+    def _train_neg_adam(self, e, c, epochs, neg_size, C_train, b_train, ve_train, vC_train, vb_train):
         # start epochs
         for i in range(epochs):
             neg = utils.sample_negative(neg_size, {c}, vocab_size=self.V_dash)
@@ -197,28 +158,16 @@ class Model:
             dE = np.dot(dz.reshape(1, -1), C_train[labels]).reshape(-1)
 
             # adam step
-            t_train = t_train + 1
-            beta1_train = beta1_train * self.beta1
-            beta2_train = beta2_train * self.beta2
-
-            # adam things
-            lr = self.lr * ma.sqrt(1 - beta2_train) / (1 - beta1_train)
-            mE = self.beta1 * me_train + (1 - self.beta1) * dE
-            mC = self.beta1 * mC_train[labels] + (1 - self.beta1) * dC
-            mb = self.beta1 * mb_train[labels] + (1 - self.beta1) * db
-            vE = self.beta2 * ve_train + (1 - self.beta2) * dE * dE
-            vC = self.beta2 * vC_train[labels] + (1 - self.beta2) * dC * dC
-            vb = self.beta2 * vb_train[labels] + (1 - self.beta2) * db * db
+            vE = self.beta * ve_train + dE
+            vC = self.beta * vC_train[labels] + dC
+            vb = self.beta * vb_train[labels] + db
 
             # update weights
-            e -= lr * mE / (np.sqrt(vE + self.epsilon))
-            C_train[labels] -= lr * mC / (np.sqrt(vC + self.epsilon))
-            b_train[labels] -= lr * mb / (np.sqrt(vb + self.epsilon))
+            e -= self.learning_rate * vE
+            C_train[labels] -= self.learning_rate * vC
+            b_train[labels] -= self.learning_rate * vb
 
             # save status
-            me_train = mE
-            mC_train[labels] = mC
-            mb_train[labels] = mb
             ve_train = vE
             vC_train[labels] = vC
             vb_train[labels] = vb
@@ -249,36 +198,36 @@ class Model:
             db = dz
             dE = np.dot(dz.reshape(1, -1), self.C[labels]).reshape(-1)
 
-            # adam step
-            self.t = self.t + 1
-            self.beta1_t = self.beta1_t * self.beta1
-            self.beta2_t = self.beta2_t * self.beta2
-
-            # adam things
-            lr = self.lr * ma.sqrt(1 - self.beta2_t) / (1 - self.beta1_t)
-            mE = self.beta1 * self.mE_t[w] + (1 - self.beta1) * dE
-            mC = self.beta1 * self.mC_t[labels] + (1 - self.beta1) * dC
-            mb = self.beta1 * self.mb_t[labels] + (1 - self.beta1) * db
-            vE = self.beta2 * self.vE_t[w] + (1 - self.beta2) * dE * dE
-            vC = self.beta2 * self.vC_t[labels] + (1 - self.beta2) * dC * dC
-            vb = self.beta2 * self.vb_t[labels] + (1 - self.beta2) * db * db
+            # momentum things
+            vE = self.beta * self.vE[w] + dE
+            vC = self.beta * self.vC[labels] + dC
+            vb = self.beta * self.vb[labels] + db
 
             # update weights
-            self.E[w] -= lr * mE / (np.sqrt(vE + self.epsilon))
-            self.C[labels] -= lr * mC / (np.sqrt(vC + self.epsilon))
-            self.b[labels] -= lr * mb / (np.sqrt(vb + self.epsilon))
+            self.E[w] -= self.learning_rate * vE
+            self.C[labels] -= self.learning_rate * vC
+            self.b[labels] -= self.learning_rate * vb
 
             # save status
-            self.mE_t[w] = mE
-            self.mC_t[labels] = mC
-            self.mb_t[labels] = mb
-            self.vE_t[w] = vE
-            self.vC_t[labels] = vC
-            self.vb_t[labels] = vb
+            self.vE[w] = vE
+            self.vC[labels] = vC
+            self.vb[labels] = vb
 
-        # get probability
-        z = np.dot(self.E[w], self.C.T) + self.b
-        exp_z = np.exp(z)
-        prob = exp_z[c] / np.sum(exp_z)
+        return self.get_prob(w, c)
 
-        return prob
+    def _sample_contexts(self, from_file=True):
+        if not from_file:
+            samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+            return samples
+
+        # Sample contexts
+        if self.scope + 1 > len(self.contexts):
+            for i in range(self.scope + 1 - len(self.contexts)):
+                samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+                self.contexts.append(samples)
+
+            # Save result back to pkl
+            print('Uploading sample context file, scope: ', self.scope)
+            utils.save_pkl(self.contexts, self.sample_contexts_file_name)
+
+        return self.contexts[self.scope]

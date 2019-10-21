@@ -13,7 +13,7 @@ project_id = env['GCS']['project_id']
 bucket_name = env['GCS']['bucket']
 
 
-def preprocess(text, min_word=20):
+def preprocess(text, min_word=73):
     # Load stop words
     stop_words = stopwords.words('english')
     n_top = int(config['PREPROCESS']['n_top'])
@@ -87,6 +87,12 @@ def create_lookup_tables(words):
 
 def save_pkl(data, filename, local=False):
     """ Save data to file """
+    # create path
+    parent_dir = os.path.dirname(filename)
+    if not os.path.exists(parent_dir):
+        os.makedirs(parent_dir)
+
+    # save file
     output = open(filename, 'wb')
     pickle.dump(data, output, pickle.HIGHEST_PROTOCOL)
     output.close()
@@ -106,6 +112,14 @@ def load_pkl(filename, local=False):
     data = pickle.load(input)
     input.close()
     return data
+
+
+def count_line(filename):
+    count = 0
+    with open(filename) as f:
+        for _ in f:
+            count += 1
+    return count
 
 
 def convert_local_path_to_gcs(local_file):
@@ -169,23 +183,6 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
             negative_samples.append(sample)
 
     return negative_samples
-
-
-# def sample_contexts(context_distribution, contexts, file_name, sample_size=1000, loop=0, from_file=True):
-#     if not from_file:
-#         samples = _sample_context(context_distribution, sample_size)
-#         return samples
-#
-#     # Sample contexts
-#     if loop + 1 > len(contexts):
-#         for i in range(loop + 1 - len(contexts)):
-#             samples = _sample_context(context_distribution, sample_size)
-#             contexts.append(samples)
-#
-#         # Save result back to pkl
-#         save_pkl(contexts, file_name)
-#
-#     return contexts[loop]
 
 
 def sample_context(context_distribution, sample_size=1000):
