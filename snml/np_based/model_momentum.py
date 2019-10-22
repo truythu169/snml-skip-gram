@@ -7,7 +7,7 @@ import multiprocessing
 
 class ModelMomentum:
 
-    def __init__(self, data_path, context_path, learning_rate=0.001, beta=0.9, n_context_sample=600):
+    def __init__(self, data_path, context_path, learning_rate=0.2, beta=0.9, n_context_sample=600):
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
         self.C = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.b = utils.load_pkl(data_path + 'softmax_b.pkl')
@@ -152,7 +152,7 @@ class ModelMomentum:
             # back propagation
             dz = exp_z / sum_exp_z
             dz[0] -= 1  # for true label
-            dz = dz / 10000
+            dz = dz / 500
             dC = np.dot(dz.reshape(-1, 1), e.reshape(1, -1))
             db = dz
             dE = np.dot(dz.reshape(1, -1), C_train[labels]).reshape(-1)
@@ -193,7 +193,7 @@ class ModelMomentum:
             # back propagation
             dz = exp_z / sum_exp_z
             dz[0] -= 1  # for true label
-            dz = dz / 10000
+            dz = dz / 500
             dC = np.dot(dz.reshape(-1, 1), e.reshape(1, -1))
             db = dz
             dE = np.dot(dz.reshape(1, -1), self.C[labels]).reshape(-1)
