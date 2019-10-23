@@ -152,7 +152,7 @@ class ModelMomentum:
             # back propagation
             dz = exp_z / sum_exp_z
             dz[0] -= 1  # for true label
-            dz = dz / 500
+            dz = dz
             dC = np.dot(dz.reshape(-1, 1), e.reshape(1, -1))
             db = dz
             dE = np.dot(dz.reshape(1, -1), C_train[labels]).reshape(-1)
@@ -193,7 +193,7 @@ class ModelMomentum:
             # back propagation
             dz = exp_z / sum_exp_z
             dz[0] -= 1  # for true label
-            dz = dz / 500
+            dz = dz
             dC = np.dot(dz.reshape(-1, 1), e.reshape(1, -1))
             db = dz
             dE = np.dot(dz.reshape(1, -1), self.C[labels]).reshape(-1)
