@@ -1,4 +1,4 @@
-from snml.np_based.model import Model
+from snml.np_based.model_momentum import ModelMomentum
 from multiprocessing import Pool
 import multiprocessing
 import utils.tools as utils
@@ -8,8 +8,8 @@ if __name__ == "__main__":
     words = [6581, 93, 4519, 506]
     contexts = [390, 1172, 1545, 22]
 
-    model = Model('../../../output/text8/snml/3000samples/31epochs/60dim/',
-                  '../../../data/text8/contexts/', n_context_sample=600)
+    model = ModelMomentum('../../../output/text8/snml/3000samples/31epochs/60dim/',
+                          '../../../data/text8/contexts/', n_context_sample=600)
 
     for i in range(len(words)):
         word = words[i]

@@ -142,8 +142,9 @@ class SkipGram:
                         self.epochs = iteration / self.n_batches
                         # output file
                         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, self.n_sampled,
-                                                                                  self.epochs, self.batch_size)
+                                                                                  int(self.epochs), self.batch_size)
                         print('Loss diff: {}, stop training.'.format(epoch_loss_diff))
+                        print(self.output_dictionary + self.embedding_file)
                         break
 
                 iteration += 1
