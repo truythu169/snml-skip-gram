@@ -1,6 +1,5 @@
-from snml.np_based.model import Model
+from snml.np_based.model_momentum import ModelMomentum
 import time
-import os
 import numpy as np
 import argparse
 import utils.tools as utils
@@ -8,11 +7,11 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/text8/snml/3000samples/31epochs/50dim/', type=str)
+    parser.add_argument('--model', default='../../../output/text8/momentum/snml/1/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
-    parser.add_argument('--scope', default=10, type=int)
-    parser.add_argument('--epochs', default=31, type=int)
+    parser.add_argument('--scope', default=300, type=int)
+    parser.add_argument('--epochs', default=8, type=int)
     args = parser.parse_args()
 
     # read snml train file
@@ -20,9 +19,9 @@ if __name__ == "__main__":
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
-    model = Model(args.model, args.context_path, n_context_sample=600)
+    model = ModelMomentum(args.model, args.context_path, n_context_sample=600, learning_rate=0.0004, beta=0.0018)
     snml_lengths = []
-    print_step = 5
+    print_step = 10
     start = time.time()
     for i in range(args.scope):
         w = data[i][0]

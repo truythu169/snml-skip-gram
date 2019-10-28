@@ -40,7 +40,7 @@ class Wordsim:
 
 if __name__ == "__main__":
     wordsim = Wordsim()
-    file_name = '../../output/test_momentum/rate0_2_m0_9_1/80dim/embedding-e=80-n_sampled=3000-epochs=50-batch_size=500.txt'
+    file_name = '../../output/text8/momentum/full/48epochs/2/100dim/embedding-e=100-n_sampled=3000-epochs=48-batch_size=500.txt'
     embedding = Embedding.from_file(file_name)
     result = wordsim.evaluate(embedding)
     wordsim.pprint(result)

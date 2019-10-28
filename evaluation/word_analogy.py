@@ -135,6 +135,6 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    file_name = '../../output/text8/test/30epochs/80dim/embedding-e=80-n_sampled=3000-epochs=30-batch_size=1000.txt'
+    file_name = '../../output/text8/momentum/full/48epochs/2/150dim/embedding-e=150-n_sampled=3000-epochs=48-batch_size=500.txt'
     embedding = Embedding.from_file(file_name)
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
