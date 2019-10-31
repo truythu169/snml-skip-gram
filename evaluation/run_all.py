@@ -9,12 +9,12 @@ if __name__ == "__main__":
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
 
     suffix = ''
-    dimension_list = [65, 70, 75, 80, 90, 100, 125, 150, 200, 300, 400]
+    dimension_list = [50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500]
     wa_list = []
     ws_list = []
 
     for dimension in dimension_list:
-        filename = '../../output/full/3/{}dim/embedding-e={}-n_sampled=3000-epochs=31-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
+        filename = '../../output/wiki/full/16epochs/1/{}dim/embedding-e={}-n_sampled=3000-epochs=16-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 
@@ -29,5 +29,6 @@ if __name__ == "__main__":
     for wa in wa_list:
         print(wa)
     print('Word sim: ')
+    ws_list.reverse()
     for ws in ws_list:
         print(ws)

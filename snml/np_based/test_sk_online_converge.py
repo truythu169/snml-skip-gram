@@ -18,20 +18,20 @@ if __name__ == "__main__":
     # data.sort()
 
     # full data
-    model_full = ModelMomentum('../../../output/text8/momentum/full/1/50dim/',
+    model_full = ModelMomentum('../../../output/text8/momentum/full/1/200dim/',
                                '../../../data/text8/contexts/', n_context_sample=600, learning_rate=0.0004, beta=0.0018)
-    model_snml = ModelMomentum('../../../output/text8/momentum/snml/1/50dim/',
+    model_snml = ModelMomentum('../../../output/text8/momentum/snml/1/200dim/',
                                '../../../data/text8/contexts/', n_context_sample=600, learning_rate=0.0004, beta=0.0018)
     # model_full = Model('../../../output/convergence_test/3000samples/31epochs/full/150dim/',
-    #                            '../../../data/text8/contexts/', n_context_sample=600)
+    #                    '../../../data/text8/contexts/', n_context_sample=600)
     # model_snml = Model('../../../output/convergence_test/3000samples/31epochs/snml/150dim/',
-    #                            '../../../data/text8/contexts/', n_context_sample=600)
+    #                    '../../../data/text8/contexts/', n_context_sample=600)
 
     p_full = []
     p_snml_b = []
     p_snml_a = []
     percent_error = 0
-    n_sample = 4000
+    n_sample = 500
 
     for i in range(n_sample):
         datum = data[i]
@@ -41,7 +41,7 @@ if __name__ == "__main__":
         c = int(c)
 
         ps_b = -np.log(model_snml.get_prob(w, c))
-        ps_a = -np.log(model_snml.train(w, c, epochs=10, neg_size=3000, update_weights=True))
+        ps_a = -np.log(model_snml.train(w, c, epochs=17, neg_size=3000, update_weights=True))
         pf = -np.log(model_full.get_prob(w, c))
         print(ps_b, ps_a, pf)
 
