@@ -9,8 +9,7 @@ import os
 class Model:
 
     # Constructor
-    def __init__(self, model_path, sample_path, output_path, context_path,
-                 n_neg_sample=200, n_context_sample=1000):
+    def __init__(self, model_path, context_path, n_neg_sample=200, n_context_sample=1000, learning_rate=0.0004):
         # Load parameters
         self.embedding = utils.load_pkl(model_path + config['SNML']['embedding'])
         self.softmax_w = utils.load_pkl(model_path + config['SNML']['softmax_w'])
@@ -22,11 +21,10 @@ class Model:
         self.context_path = context_path
         self.n_context_sample = n_context_sample
         self.scope = 0
+        self.learning_rate = learning_rate
 
         # paths
         self.data_path = model_path
-        self.sample_path = sample_path
-        self.output_path = output_path
 
         # Load context distribution
         self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')
@@ -72,8 +70,7 @@ class Model:
 
             # training operations
             self.g_cost = tf.reduce_mean(self.g_loss)
-            self.g_optimizer = tf.train.AdamOptimizer().minimize(self.g_cost)
-            self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost, global_step=396893)
+            self.g_optimizer = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.9).minimize(self.g_cost)
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
 
             # conditional probability of word given contexts
@@ -98,35 +95,58 @@ class Model:
         feed = {self.g_inputs: [word],
                 self.g_labels: [[context]]}
 
-        train_loss, _ = self.sess.run([self.g_cost, self.g_optimizer], feed_dict=feed)
+        train_loss = self.sess.run(self.g_cost, feed_dict=feed)
 
         return np.exp(-train_loss)
 
-    def snml_length(self, word, context, epochs=10):
-        print('Start training for {} contexts ...'.format(self.n_context))
+    def get_prob(self, word, context):
+        feed = {self.g_inputs: [word],
+                self.g_labels: [[context]]}
+
+        prob = self.sess.run(self.g_prob, feed_dict=feed)
+
+        return prob
+
+    def snml_length_sampling(self, word, context, epochs=10):
+        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=False)
         prob_sum = 0
-        iteration = 0
 
         # Update all other context
-        start = time.time()
-        for c in range(self.n_context):
-            if c != context:
-                iteration += 1
-                prob = self._train_one_sample(word, c, epochs, update_weight=False)
-                prob_sum += prob
+        for i in range(self.n_context_sample):
+            c = sample_contexts[i]
+            c_prob = sample_contexts_prob[i]
 
-                if iteration % 1000 == 0:
-                    end = time.time()
-                    print("Iteration: {}, ".format(iteration),
-                          "{:.4f} sec".format(end - start))
-                    start = time.time()
+            prob = self.train_one_sample(word, c, epochs, update_weight=False)
+            prob_sum += prob / c_prob
+
+        prob_sum = prob_sum / self.n_context_sample
 
         # Update true context and save weights
-        prob = self._train_one_sample(word, context, epochs, update_weight=True)
-        prob_sum += prob
+        prob = self.train_one_sample(word, context, epochs, update_weight=True)
+
         snml_length = - np.log(prob / prob_sum)
-        print('Finished!')
+        self.scope += 1
         return snml_length
+
+    def train_one_sample(self, word, context, epochs=20, update_weight=False):
+        # train weights
+        for e in range(epochs):
+            feed = {self.g_inputs: [word],
+                    self.g_labels: [[context]]}
+
+            train_loss, _ = self.sess.run([self.g_cost, self.g_optimizer], feed_dict=feed)
+
+        # probability of word given contexts
+        feed = {self.g_inputs: [word], self.g_labels: [[context]]}
+        p = self.sess.run(self.g_prob, feed_dict=feed)
+
+        # update weights
+        if not update_weight:
+            self.sess.run(self.g_reset_embedding)
+            self.sess.run(self.g_reset_softmax_w)
+            self.sess.run(self.g_reset_softmax_b)
+
+        return p
 
     def _sample_contexts(self, from_file=True):
         if not from_file:
@@ -144,46 +164,3 @@ class Model:
             utils.save_pkl(self.contexts, self.sample_contexts_file_name)
 
         return self.contexts[self.scope]
-
-    def snml_length_sampling(self, word, context, epochs=10):
-        print('Start training for {} contexts ...'.format(self.n_context))
-        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=True)
-        prob_sum = 0
-
-        # Update all other context
-        for i in range(self.n_context_sample):
-            c = sample_contexts[i]
-            c_prob = sample_contexts_prob[i]
-
-            prob = self._train_one_sample(word, c, epochs, update_weight=False)
-            prob_sum += prob / c_prob
-
-        prob_sum = prob_sum / self.n_context_sample
-
-        # Update true context and save weights
-        prob = self._train_one_sample(word, context, epochs, update_weight=True)
-
-        snml_length = - np.log(prob / prob_sum)
-        self.scope += 1
-        print('Finished!')
-        return snml_length
-
-    def _train_one_sample(self, word, context, epochs=20, update_weight=False):
-        # train weights
-        for e in range(epochs):
-            feed = {self.g_inputs: [word],
-                    self.g_labels: [[context]]}
-
-            train_loss, _ = self.sess.run([self.g_cost, self.g_optimizer], feed_dict=feed)
-
-        # estimate conditional probability of word given contexts
-        feed = {self.g_inputs: [word], self.g_labels: [[context]]}
-        p = self.sess.run(self.g_prob, feed_dict=feed)
-
-        # update weights
-        if not update_weight:
-            self.sess.run(self.g_reset_embedding)
-            self.sess.run(self.g_reset_softmax_w)
-            self.sess.run(self.g_reset_softmax_b)
-
-        return p

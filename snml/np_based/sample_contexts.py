@@ -2,8 +2,8 @@ import os
 import utils.tools as utils
 
 if __name__ == "__main__":
-    context_path = '../../../data/wiki/contexts/'
-    n_context_sample = 600
+    context_path = '../../../data/text8/contexts/'
+    n_context_sample = 6000
     scope = 1000
     file_name = os.path.join(context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
 

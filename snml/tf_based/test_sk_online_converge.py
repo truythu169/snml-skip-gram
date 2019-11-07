@@ -1,55 +1,54 @@
 from snml.tf_based.model import Model
 from sklearn.metrics import mean_absolute_error
-import utils.tools as utils
-from matplotlib import pyplot as plt
-import time
+import tensorflow as tf
 import numpy as np
 
 
 if __name__ == "__main__":
-    # data
-    data = [[11469, 1659], [1153, 1465], [357, 92], [260, 77], [56, 216],
-            [5, 60], [18, 4], [21, 274], [912, 1818], [33, 2543]]
+    # read snml train file
+    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
 
     # full data
-    model_full = Model('../../../output/convergence_test/35epochs/full/100dim/',
-                       '../../../data/processed data/split/',
-                       '../models/100dim/output/',
-                       '../context_distribution.pkl',
-                       n_train_sample=10000,
-                       n_context_sample=600,
-                       n_neg_sample=3000)
-
-    # model_snml = Model('../../../output/convergence_test/35epochs/snml/100dim/',
-    #                    '../../../data/processed data/split/',
-    #                    '../models/100dim/output/',
-    #                    '../context_distribution.pkl',
-    #                    n_train_sample=10000,
-    #                    n_context_sample=600,
-    #                    n_neg_sample=3000)
+    model = Model('../../../output/text8/momentum/full/1/300dim/',
+                  '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
 
     p_full = []
-    p_snml = []
-    for datum in data:
-        # ps = model_snml.train(datum[0], datum[1], epochs=35, update_weight=True)
-        pf = model_full.get_neg_prob(datum[0], datum[1])
-        # print(pf, ps)
+    p_snml_b = []
+    p_snml_a = []
+    n_sample = 4500
+
+    for i in range(n_sample):
+        datum = data[i]
+        w, c = data[i][0], data[i][1]
+        w = int(w)
+        c = int(c)
+
+        pf = -np.log(model.get_prob(w, c))
         p_full.append(pf)
-        # p_snml.append(ps)
 
-    # print('MAE: ', mean_absolute_error(p_snml, p_full))
-    print(p_full)
+        if i % 100 == 0:
+            print('{} th loop'.format(i))
 
-    # for i in range(1000):
-    #     p, losses = model.train_neg_adam(8229, 9023)
-    #     p_sum.append(p)
-    # end = time.time()
-    # print("100 loop in {:.4f} sec".format(end - start))
-    # plt.hist(p_sum, bins=20)
-    # plt.show()
+    # SNML data
+    tf.reset_default_graph()
+    model = Model('../../../output/text8/momentum/snml/1/300dim/',
+                  '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
 
-    # print('Mean: {} \nMin: {} \nMax: {} \nstd: {}'.format(np.mean(p_sum), min(p_sum), max(p_sum), np.std(p_sum)))
-    #
-    # model1 = Model('../../../output/convergence_test/20epochs/50dim/1/')
-    # model2 = Model('../../../output/convergence_test/20epochs/50dim/2/')
-    # model3 = Model('../../../output/convergence_test/20epochs/50dim/3/')
+    for i in range(n_sample):
+        datum = data[i]
+        w, c = data[i][0], data[i][1]
+        w = int(w)
+        c = int(c)
+
+        ps_b = -np.log(model.get_prob(w, c))
+        ps_a = -np.log(model.train_one_sample(w, c, epochs=4, update_weight=True))
+
+        p_snml_a.append(ps_a)
+        p_snml_b.append(ps_b)
+
+        if i % 100 == 0:
+            print('{} th loop'.format(i))
+
+    print('MAE before: ', mean_absolute_error(p_snml_b, p_full))
+    print('MAE after: ', mean_absolute_error(p_snml_a, p_full))
+    print(sum(p_full), sum(p_snml_a), sum(p_snml_b))

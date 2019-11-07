@@ -26,7 +26,7 @@ class Wordsim:
     def evaluate(self, embedding):
         result = {}
         for file_name, data in self.dataset.items():
-            pred, label, found, notfound = [] ,[], 0, 0
+            pred, label, found, notfound = [], [], 0, 0
             for datum in data:
                 if embedding.in_vocab(datum[0]) and embedding.in_vocab(datum[1]):
                     found += 1
@@ -40,7 +40,7 @@ class Wordsim:
 
 if __name__ == "__main__":
     wordsim = Wordsim()
-    file_name = '../../output/text8/momentum/full/1/50dim/embedding-e=50-n_sampled=3000-epochs=36-batch_size=500.txt'
+    file_name = '../../output/text8/momentum/full/1/500dim/embedding-e=500-n_sampled=3000-epochs=120-batch_size=500.txt'
     embedding = Embedding.from_file(file_name)
     result = wordsim.evaluate(embedding)
     wordsim.pprint(result)
