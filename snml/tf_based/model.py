@@ -70,7 +70,7 @@ class Model:
 
             # training operations
             self.g_cost = tf.reduce_mean(self.g_loss)
-            self.g_optimizer = tf.train.MomentumOptimizer(learning_rate=self.learning_rate, momentum=0.9).minimize(self.g_cost)
+            self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
 
             # conditional probability of word given contexts
