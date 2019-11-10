@@ -108,7 +108,7 @@ class Model:
         return prob
 
     def snml_length_sampling(self, word, context, epochs=10):
-        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=False)
+        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=True)
         prob_sum = 0
 
         # Update all other context
