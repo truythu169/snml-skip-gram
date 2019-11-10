@@ -5,11 +5,14 @@ import numpy as np
 
 
 if __name__ == "__main__":
+    epochs = 19
+    dim = '400'
+
     # read snml train file
     data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
 
     # full data
-    model = Model('../../../output/text8/momentum/full/1/50dim/',
+    model = Model('../../../output/text8/momentum/full/1/' + dim + 'dim/',
                   '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
 
     p_full = []
@@ -31,7 +34,7 @@ if __name__ == "__main__":
 
     # SNML data
     tf.reset_default_graph()
-    model = Model('../../../output/text8/momentum/snml/1/50dim/',
+    model = Model('../../../output/text8/momentum/snml/1/' + dim + 'dim/',
                   '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
 
     for i in range(n_sample):
@@ -52,7 +55,7 @@ if __name__ == "__main__":
         w = int(w)
         c = int(c)
 
-        ps_a = -np.log(model.train_one_sample(w, c, epochs=12, update_weight=True))
+        ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
         p_snml_a.append(ps_a)
 
         if i % 100 == 0:
