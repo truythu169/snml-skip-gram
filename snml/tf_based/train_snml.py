@@ -10,8 +10,8 @@ if __name__ == "__main__":
     parser.add_argument('--model', default='../../../output/text8/momentum/snml/1/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
-    parser.add_argument('--scope', default=5, type=int)
-    parser.add_argument('--epochs', default=4, type=int)
+    parser.add_argument('--scope', default=10, type=int)
+    parser.add_argument('--epochs', default=10, type=int)
     args = parser.parse_args()
 
     # read snml train file

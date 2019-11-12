@@ -26,11 +26,9 @@ class Model:
         # paths
         self.data_path = model_path
 
-        # Load context distribution
-        self.context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')
         # Check if sample context file exits
         self.sample_contexts_file_name = os.path.join(self.context_path,
-                                                      'sample_contexts_{}.pkl'.format(n_context_sample))
+                                                      'sample_contexts_{}_uniform.pkl'.format(n_context_sample))
         self.contexts = utils.load_pkl(self.sample_contexts_file_name)
 
         # set computation
@@ -108,18 +106,17 @@ class Model:
         return prob
 
     def snml_length_sampling(self, word, context, epochs=10):
-        sample_contexts, sample_contexts_prob = self._sample_contexts(from_file=False)
+        sample_contexts = self._sample_contexts(from_file=True)
+        sample_prob = 1 / self.n_context
         prob_sum = 0
 
         # Update all other context
         for i in range(self.n_context_sample):
             c = sample_contexts[i]
-            c_prob = sample_contexts_prob[i]
-
             prob = self.train_one_sample(word, c, epochs, update_weight=False)
-            prob_sum += prob / c_prob
+            prob_sum += prob
 
-        prob_sum = prob_sum / self.n_context_sample
+        prob_sum = prob_sum / (sample_prob * self.n_context_sample)
 
         # Update true context and save weights
         prob = self.train_one_sample(word, context, epochs, update_weight=True)
@@ -150,13 +147,13 @@ class Model:
 
     def _sample_contexts(self, from_file=True):
         if not from_file:
-            samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+            samples = utils.sample_context_uniform(self.n_context, self.n_context_sample)
             return samples
 
         # Sample contexts
         if self.scope + 1 > len(self.contexts):
             for i in range(self.scope + 1 - len(self.contexts)):
-                samples = utils.sample_context(self.context_distribution, self.n_context_sample)
+                samples = utils.sample_context_uniform(self.n_context, self.n_context_sample)
                 self.contexts.append(samples)
 
             # Save result back to pkl

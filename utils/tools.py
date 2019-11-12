@@ -198,6 +198,12 @@ def sample_context(context_distribution, sample_size=1000):
     return samples, samples_prob
 
 
+def sample_context_uniform(context_size, sample_size=1000):
+    samples = random.sample(range(0, context_size), sample_size)
+
+    return samples
+
+
 def sample_learning_data(data_path, max_n_file, rand_size):
     file_no = random.randint(0, max_n_file)
     file_name = data_path + ('x%05d' % file_no)
