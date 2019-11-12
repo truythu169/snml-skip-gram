@@ -7,7 +7,7 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/text8/momentum/snml/1/50dim/', type=str)
+    parser.add_argument('--model', default='../../../output/text8/momentum/snml/1/150dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
     parser.add_argument('--scope', default=10, type=int)
@@ -19,9 +19,9 @@ if __name__ == "__main__":
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
-    model = Model(args.model, args.context_path, n_neg_sample=600, n_context_sample=6000, learning_rate=0.0004)
+    model = Model(args.model, args.context_path, n_neg_sample=3000, n_context_sample=3000, learning_rate=0.0004)
     snml_lengths = []
-    print_step = 1
+    print_step = 5
     start = time.time()
     for i in range(args.scope):
         w = data[i][0]
@@ -33,7 +33,7 @@ if __name__ == "__main__":
         # print process
         if (i + 1) % print_step == 0:
             end = time.time()
-            print('Run {} step in: {:.4f} sec'.format(i + 1, (end - start)))
+            print('Run {} step in: {:.4f} sec, snml length: {}'.format(i + 1, (end - start), sum(snml_lengths)))
             start = time.time()
 
         # save steps
