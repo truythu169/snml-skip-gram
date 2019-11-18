@@ -8,5 +8,5 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model = Model(args.model, args.data)
-    sum_log_likelihood = model.log_likelihood()
-    print('Final Log Likelihood: ', sum_log_likelihood)
+    aic = model.aic()
+    print('Final Log Likelihood: ', aic)

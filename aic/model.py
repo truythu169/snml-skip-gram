@@ -15,6 +15,7 @@ class Model:
         self.n_vocab = self.embedding.shape[0]
         self.n_embedding = self.embedding.shape[1]
         self.n_context = self.softmax_w.shape[0]
+        self.batch_size = 5000
 
         # paths
         self.data_path = data_path
@@ -22,7 +23,7 @@ class Model:
         filename = self.data_path + config['TRAIN']['train_data']
 
         # set computation
-        self._set_computation(filename, batch_size=1000, epochs=1)
+        self._set_computation(filename, batch_size=self.batch_size, epochs=1)
 
     def _set_computation(self, file_name, batch_size, epochs):
         # computation graph
@@ -79,7 +80,7 @@ class Model:
                 if iteration % print_step == 0:
                     end = time.time()
                     print("Iteration: {}".format(iteration),
-                          "{:.4f} sec/ {} sample".format((end - start), 1000 * print_step))
+                          "{:.4f} sec/ {} sample".format((end - start), self.batch_size * print_step))
                     start = time.time()
 
                 iteration += 1
@@ -87,3 +88,11 @@ class Model:
             print("End of dataset")
 
         return sum_log_likelihood
+
+    def aic(self):
+        sum_log_likelihood = self.log_likelihood()
+        k = self.embedding.shape[0] * self.embedding.shape[1] + \
+            self.softmax_w.shape[0] * self.softmax_w.shape[1] + \
+            self.softmax_b.shape[0]
+
+        return 2 * k - 2 * sum_log_likelihood
