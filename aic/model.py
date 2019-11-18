@@ -16,14 +16,18 @@ class Model:
         self.n_embedding = self.embedding.shape[1]
         self.n_context = self.softmax_w.shape[0]
         self.batch_size = 5000
+        self.sum_log_likelihood = 0
+        self.k = self.embedding.shape[0] * self.embedding.shape[1] + \
+                 self.softmax_w.shape[0] * self.softmax_w.shape[1] + \
+                 self.softmax_b.shape[0]
 
         # paths
         self.data_path = data_path
         self.model_path = model_path
-        filename = self.data_path + config['TRAIN']['train_data']
+        self.filename = self.data_path + config['TRAIN']['train_data']
 
         # set computation
-        self._set_computation(filename, batch_size=self.batch_size, epochs=1)
+        self._set_computation(self.filename, batch_size=self.batch_size, epochs=1)
 
     def _set_computation(self, file_name, batch_size, epochs):
         # computation graph
@@ -68,31 +72,30 @@ class Model:
         self.sess.run(self.g_init)
 
     def log_likelihood(self, print_step=1000):
-        iteration = 1
-        sum_log_likelihood = 0
+        if self.sum_log_likelihood == 0:
+            iteration = 1
+            sum_log_likelihood = 0
 
-        try:
-            start = time.time()
-            while True:
-                log_likelihood = self.sess.run(self.g_sum_log_likelihood)
-                sum_log_likelihood += log_likelihood
+            try:
+                start = time.time()
+                while True:
+                    log_likelihood = self.sess.run(self.g_sum_log_likelihood)
+                    sum_log_likelihood += log_likelihood
 
-                if iteration % print_step == 0:
-                    end = time.time()
-                    print("Iteration: {}".format(iteration),
-                          "{:.4f} sec/ {} sample".format((end - start), self.batch_size * print_step))
-                    start = time.time()
+                    if iteration % print_step == 0:
+                        end = time.time()
+                        print("Iteration: {}".format(iteration),
+                              "{:.4f} sec/ {} sample".format((end - start), self.batch_size * print_step))
+                        start = time.time()
 
-                iteration += 1
-        except tf.errors.OutOfRangeError:
-            print("End of dataset")
+                    iteration += 1
+            except tf.errors.OutOfRangeError:
+                print("End of dataset")
+                print("Sum log likelihood: ", sum_log_likelihood)
 
-        return sum_log_likelihood
+            self.sum_log_likelihood = sum_log_likelihood
+
+        return self.sum_log_likelihood
 
     def aic(self):
-        sum_log_likelihood = self.log_likelihood()
-        k = self.embedding.shape[0] * self.embedding.shape[1] + \
-            self.softmax_w.shape[0] * self.softmax_w.shape[1] + \
-            self.softmax_b.shape[0]
-
-        return 2 * k - 2 * sum_log_likelihood
+        return 2 * self.k - 2 * self.log_likelihood()
