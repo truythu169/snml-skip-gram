@@ -5,8 +5,8 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    epochs = 19
-    dim = '400'
+    epochs = 11
+    dim = '500'
 
     # read snml train file
     data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     p_full = []
     p_snml_b = []
     p_snml_a = []
-    n_sample = 2000
+    n_sample = 4509
 
     for i in range(n_sample):
         datum = data[i]
@@ -55,7 +55,8 @@ if __name__ == "__main__":
         w = int(w)
         c = int(c)
 
-        ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
+        # ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
+        ps_a = 0
         p_snml_a.append(ps_a)
 
         if i % 100 == 0:

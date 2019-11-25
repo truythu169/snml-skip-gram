@@ -3,15 +3,15 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_path', default='../../data/text8/', type=str)
-    parser.add_argument('--output_path', default='../../output/text8/test/', type=str)
-    parser.add_argument('--n_embedding', default=50, type=int)
-    parser.add_argument('--n_sampled', default=3000, type=int)
-    parser.add_argument('--epochs', default=16, type=int)
-    parser.add_argument('--batch_size', default=500, type=int)
+    parser.add_argument('--input_path', default='../notebooks/output/50-context-50000-data-10-questions/', type=str)
+    parser.add_argument('--output_path', default='../notebooks/output/50-context-50000-data-10-questions/model/', type=str)
+    parser.add_argument('--n_embedding', default=13, type=int)
+    parser.add_argument('--n_sampled', default=30, type=int)
+    parser.add_argument('--epochs', default=200, type=int)
+    parser.add_argument('--batch_size', default=10, type=int)
     parser.add_argument('--print_step', default=1000, type=int)
     parser.add_argument('--snml_dir', default='', type=str)
-    parser.add_argument('--stop_threshold', default=0.0002, type=float)
+    parser.add_argument('--stop_threshold', default=0.0001, type=float)
     args = parser.parse_args()
     snml = args.snml_dir != ''
 

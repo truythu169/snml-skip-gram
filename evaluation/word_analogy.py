@@ -6,7 +6,7 @@ from statistics import mean
 
 class WordAnalogy:
 
-    def __init__(self, filename='datasets/word_analogy/google_analogy.txt'):
+    def __init__(self, filename='datasets/word_analogy/test-10-questions.txt'):
         with open(filename, "r") as f:
             L = f.read().splitlines()
 
@@ -72,6 +72,7 @@ class WordAnalogy:
                 if embedding.in_vocabs(x) and embedding.in_vocab(y):
                     skipped_X.append(embedding.indexes(x))
                     skipped_labels.append(embedding.index(y))
+                    print('{}-{}'.format(x, y))
                 else:
                     skip_lines += 1
 
@@ -84,6 +85,8 @@ class WordAnalogy:
         for cat in cat_list:
             X_cat, y_cat = X[cat], labels[cat]
             pred_vectors = []
+            if len(X_cat) == 0:
+                continue
 
             for x in X_cat:
                 x = embedding.vectors(x)
@@ -124,6 +127,8 @@ class WordAnalogy:
         acc = 0
         for cat in cat_list:
             cat_count = len(X[cat])
+            if cat_count == 0:
+                continue
             acc += cat_count * predictions.get(cat)
             total_count += cat_count
         predictions['all'] = acc / total_count
@@ -135,6 +140,6 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    file_name = '../../output/text8/momentum/full/1/500dim/embedding-e=500-n_sampled=3000-epochs=120-batch_size=500.txt'
+    file_name = '../notebooks/output/50-context-50000-data-10-questions/model/10dim/embedding-e=10-n_sampled=30-epochs=11-batch_size=10.txt'
     embedding = Embedding.from_file(file_name)
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)

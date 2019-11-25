@@ -9,20 +9,21 @@ if __name__ == "__main__":
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
 
     suffix = ''
-    dimension_list = [50, 75, 100, 125, 150, 175, 200, 250, 300, 400, 500]
+    dimension_list = [50, 100, 150, 200, 250, 300, 400, 500]
+    epochs = [36, 54, 68, 80, 86, 92, 105, 120]
     wa_list = []
     ws_list = []
 
-    for dimension in dimension_list:
-        filename = '../../output/wiki/full/16epochs/1/{}dim/embedding-e={}-n_sampled=3000-epochs=16-batch_size=10000{}.txt'.format(dimension, dimension, suffix)
+    for dimension, epoch in zip(dimension_list, epochs):
+        filename = '../../output/text8/momentum/snml/1/{}dim/embedding-e={}-n_sampled=3000-epochs={}-batch_size=500{}.txt'.format(dimension, dimension, epoch, suffix)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 
-        # wa_result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
+        wa_result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
         ws_result = wordsim.evaluate(embedding)
         wordsim.pprint(ws_result)
 
-        # wa_list.append(wa_result['all'])
+        wa_list.append(wa_result['all'])
         ws_list.append(ws_result['EN-WS-353-ALL'][2])
 
     print('Word analogy: ')
