@@ -3,6 +3,8 @@ import numpy as np
 import tensorflow as tf
 import utils.tools as utils
 from utils.settings import config
+from evaluation.word_analogy import WordAnalogy
+from utils.embedding import Embedding
 import os
 
 
@@ -31,6 +33,7 @@ class SkipGram:
 
         # read dictionaries
         self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
+        self.vocab_to_int = utils.load_pkl(input_path + config['TRAIN']['int_vocab_dict'])
         self.int_to_cont = utils.load_pkl(input_path + config['TRAIN']['context_dict'])
         self.n_vocab = len(self.int_to_vocab)
         self.n_context = len(self.int_to_cont)
@@ -138,6 +141,11 @@ class SkipGram:
                     epoch_loss_diff = np.abs(epoch_loss - last_epoch_loss)
                     last_epoch_loss = epoch_loss
                     print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
+                    embedding = self.sess.run(self.embedding_g)
+                    word_analogy = WordAnalogy('../evaluation/datasets/word_analogy/test-18-questions.txt')
+                    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
+                    eval = Embedding(embedding, self.int_to_vocab, self.vocab_to_int)
+                    result = word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
 
                     if epoch_loss_diff < stop_threshold:
                         self.epochs = iteration / self.n_batches

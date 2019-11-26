@@ -6,7 +6,7 @@ from statistics import mean
 
 class WordAnalogy:
 
-    def __init__(self, filename='datasets/word_analogy/test-10-questions.txt'):
+    def __init__(self, filename='datasets/word_analogy/test-18-questions.txt'):
         with open(filename, "r") as f:
             L = f.read().splitlines()
 
@@ -72,13 +72,12 @@ class WordAnalogy:
                 if embedding.in_vocabs(x) and embedding.in_vocab(y):
                     skipped_X.append(embedding.indexes(x))
                     skipped_labels.append(embedding.index(y))
-                    print('{}-{}'.format(x, y))
                 else:
                     skip_lines += 1
 
             X[cat] = skipped_X
             labels[cat] = skipped_labels
-        print('Skipped {} lines.'.format(skip_lines))
+        # print('Skipped {} lines.'.format(skip_lines))
 
         # Predict answer vector
         predictions = {}
@@ -119,7 +118,7 @@ class WordAnalogy:
             acc = mean(result)
 
             # result
-            print("Category: %-30s, accuracy: %f (all: %d)" % (cat, acc, len(X_cat)))
+            # print("Category: %-30s, accuracy: %f (all: %d)" % (cat, acc, len(X_cat)))
             predictions[cat] = acc
 
         # overall
@@ -140,6 +139,6 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    file_name = '../notebooks/output/50-context-50000-data-10-questions/model/10dim/embedding-e=10-n_sampled=30-epochs=11-batch_size=10.txt'
+    file_name = '../notebooks/output/50-context-50000-data-18-questions/model/12dim/embedding-e=12-n_sampled=30-epochs=8-batch_size=10.txt'
     embedding = Embedding.from_file(file_name)
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
