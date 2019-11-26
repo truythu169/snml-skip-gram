@@ -57,6 +57,10 @@ class SkipGram:
         self.n_datums = utils.count_line(filename)
         self.n_batches = self.n_datums // self.batch_size
 
+        # evaluator
+        self.word_analogy = WordAnalogy(config['TRAIN']['question_file'])
+        self.word_analogy.set_top_words(config['TRAIN']['top_word_file'])
+
         # output file
         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, n_sampled, epochs, batch_size)
 
@@ -142,10 +146,8 @@ class SkipGram:
                     last_epoch_loss = epoch_loss
                     print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
                     embedding = self.sess.run(self.embedding_g)
-                    word_analogy = WordAnalogy('../evaluation/datasets/word_analogy/test-18-questions.txt')
-                    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
                     eval = Embedding(embedding, self.int_to_vocab, self.vocab_to_int)
-                    result = word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+                    self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
 
                     if epoch_loss_diff < stop_threshold:
                         self.epochs = iteration / self.n_batches

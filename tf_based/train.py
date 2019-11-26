@@ -6,7 +6,7 @@ if __name__ == "__main__":
     parser.add_argument('--input_path', default='../notebooks/output/50-context-50000-data-18-questions/', type=str)
     parser.add_argument('--output_path', default='../notebooks/output/50-context-50000-data-18-questions/model/', type=str)
     parser.add_argument('--n_embedding', default=12, type=int)
-    parser.add_argument('--n_sampled', default=30, type=int)
+    parser.add_argument('--n_sampled', default=35, type=int)
     parser.add_argument('--epochs', default=25, type=int)
     parser.add_argument('--batch_size', default=10, type=int)
     parser.add_argument('--print_step', default=1000, type=int)
