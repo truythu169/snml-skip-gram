@@ -99,8 +99,20 @@ class SkipGram:
                 num_classes=self.n_context)
 
             self.cost = tf.reduce_mean(self.loss)
-            # self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.2, momentum=0.9).minimize(self.cost)
             self.optimizer = tf.train.AdamOptimizer().minimize(self.cost)
+
+            # full loss
+            logits = tf.matmul(self.embed, tf.transpose(self.softmax_w_g))
+            logits = tf.nn.bias_add(logits, self.softmax_b_g)
+            labels_one_hot = tf.one_hot(self.labels, self.n_context)
+            self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
+                labels=labels_one_hot,
+                logits=logits)
+            self.full_cost = tf.reduce_mean(self.full_loss)
+            self.full_optimizer = tf.train.AdamOptimizer().minimize(self.full_cost)
+
+            # context distribution
+            self.g_prob = tf.nn.softmax(logits)
 
             # init variables
             self.g_init = tf.global_variables_initializer()
@@ -126,7 +138,7 @@ class SkipGram:
         try:
             start = time.time()
             while True:
-                train_loss, _ = self.sess.run([self.cost, self.optimizer])
+                train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
                 loss += train_loss
                 epoch_sum_loss += train_loss
                 losses.append(train_loss)
@@ -181,7 +193,7 @@ class SkipGram:
             # keep training
             try:
                 while True:
-                    train_loss, _ = self.sess.run([self.cost, self.optimizer])
+                    train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
             except tf.errors.OutOfRangeError:
                 print("End of Scope")
 

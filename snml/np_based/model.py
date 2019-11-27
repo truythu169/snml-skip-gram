@@ -54,6 +54,16 @@ class Model:
 
         return y[context]
 
+    def get_context_dis(self, word):
+        # forward propagation
+        e = self.E[word]  # K dimensions vector
+        z = np.dot(e, self.C.T) + self.b
+        exp_z = np.exp(z)
+        sum_exp_z = np.sum(exp_z)
+        y = exp_z / sum_exp_z
+
+        return y
+
     def get_neg_prob(self, word, context, neg_size=200):
         neg = utils.sample_negative(neg_size, {context}, vocab_size=self.V_dash)
 
