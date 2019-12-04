@@ -51,7 +51,7 @@ class SkipGram:
             filename = self.data_path + config['TRAIN']['train_data']
         self.snml = snml
         self._set_training_file(filename)
-        self._set_computation()
+        self._set_computation(filename)
 
         # training data
         self.n_datums = utils.count_line(filename)
@@ -68,7 +68,12 @@ class SkipGram:
                                                                                                self.n_batches))
 
     def _set_training_file(self, file_name):
+        # with self.train_graph.as_default():
+        return
+
+    def _set_computation(self, file_name):
         with self.train_graph.as_default():
+            tf.set_random_seed(1234)
             # training data
             self.dataset = tf.data.experimental.make_csv_dataset(file_name,
                                                                  batch_size=self.batch_size,
@@ -78,8 +83,6 @@ class SkipGram:
             self.datum = self.dataset.make_one_shot_iterator().get_next()
             self.inputs, self.labels = self.datum['input'], self.datum['output']
 
-    def _set_computation(self):
-        with self.train_graph.as_default():
             # embedding layer
             self.embedding_g = tf.Variable(tf.random_uniform((self.n_vocab, self.n_embedding), -1, 1))
             self.embed = tf.nn.embedding_lookup(self.embedding_g, self.inputs)

@@ -5,20 +5,21 @@ import numpy as np
 
 
 if __name__ == "__main__":
-    epochs = 11
-    dim = '500'
+    epochs = 2
+    dim = '5'
+    learning_rate = 0.00035
 
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../notebooks/output/50-context-500000-data-18-questions/485000/scope.csv', delimiter=',').astype(int)
 
     # full data
-    model = Model('../../../output/text8/momentum/full/1/' + dim + 'dim/',
-                  '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
+    model = Model('../../notebooks/output/50-context-500000-data-18-questions/490000/model/' + dim + 'dim/',
+                  '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
     p_full = []
     p_snml_b = []
     p_snml_a = []
-    n_sample = 4509
+    n_sample = 5000
 
     for i in range(n_sample):
         datum = data[i]
@@ -34,8 +35,8 @@ if __name__ == "__main__":
 
     # SNML data
     tf.reset_default_graph()
-    model = Model('../../../output/text8/momentum/snml/1/' + dim + 'dim/',
-                  '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.0004)
+    model = Model('../../notebooks/output/50-context-500000-data-18-questions/485000/model/' + dim + 'dim/',
+                  '../../../data/text8/contexts/', n_neg_sample=50, n_context_sample=3000, learning_rate=learning_rate)
 
     for i in range(n_sample):
         datum = data[i]
@@ -55,8 +56,7 @@ if __name__ == "__main__":
         w = int(w)
         c = int(c)
 
-        # ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
-        ps_a = 0
+        ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
         p_snml_a.append(ps_a)
 
         if i % 100 == 0:

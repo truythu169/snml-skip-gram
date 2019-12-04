@@ -2,9 +2,9 @@ import os
 import utils.tools as utils
 
 if __name__ == "__main__":
-    context_path = '../../../data/text8/contexts/'
-    n_context_sample = 6000
-    scope = 1000
+    context_path = '../notebooks/output/50-context-500000-data-18-questions/contexts/'
+    n_context_sample = 50
+    scope = 5000
     file_name = os.path.join(context_path, 'sample_contexts_{}.pkl'.format(n_context_sample))
 
     context_distribution = utils.load_pkl(context_path + 'context_distribution.pkl')

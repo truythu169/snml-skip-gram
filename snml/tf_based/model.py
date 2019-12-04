@@ -27,9 +27,9 @@ class Model:
         self.data_path = model_path
 
         # Check if sample context file exits
-        self.sample_contexts_file_name = os.path.join(self.context_path,
-                                                      'sample_contexts_{}_uniform.pkl'.format(n_context_sample))
-        self.contexts = utils.load_pkl(self.sample_contexts_file_name)
+        # self.sample_contexts_file_name = os.path.join(self.context_path,
+        #                                               'sample_contexts_{}_uniform.pkl'.format(n_context_sample))
+        self.contexts = [] #utils.load_pkl(self.sample_contexts_file_name)
 
         # set computation
         self._set_computation()
@@ -157,7 +157,7 @@ class Model:
                 self.contexts.append(samples)
 
             # Save result back to pkl
-            print('Uploading sample context file, scope: ', self.scope)
-            utils.save_pkl(self.contexts, self.sample_contexts_file_name)
+            # print('Uploading sample context file, scope: ', self.scope)
+            # utils.save_pkl(self.contexts, self.sample_contexts_file_name)
 
         return self.contexts[self.scope]
