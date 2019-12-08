@@ -105,6 +105,20 @@ class Model:
 
         return prob
 
+    def snml_length(self, word, context, epochs=10):
+        prob_sum = 0
+
+        # Update all other context
+        for i in range(self.n_context):
+            prob = self.train_one_sample(word, i, epochs, update_weight=False)
+            prob_sum += prob
+
+        # Update true context and save weights
+        prob = self.train_one_sample(word, context, epochs, update_weight=True)
+
+        snml_length = - np.log(prob / prob_sum)
+        return snml_length
+
     def snml_length_sampling(self, word, context, epochs=10):
         sample_contexts = self._sample_contexts(from_file=True)
         sample_prob = 1 / self.n_context

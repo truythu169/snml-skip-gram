@@ -7,7 +7,7 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../notebooks/output/50-context-500000-data-18-questions/495000/model/15dim/', type=str)
+    parser.add_argument('--model', default='../../notebooks/output/50-context-500000-data-18-questions/495000/model/5dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../notebooks/output/50-context-500000-data-18-questions/495000/scope.csv', type=str)
     parser.add_argument('--scope', default=5000, type=int)
@@ -27,7 +27,7 @@ if __name__ == "__main__":
         w = data[i][0]
         c = data[i][1]
 
-        length = model.snml_length_sampling(w, c, epochs=args.epochs)
+        length = model.snml_length(w, c, epochs=args.epochs)
         snml_lengths.append(length)
 
         # print process
