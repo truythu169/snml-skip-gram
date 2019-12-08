@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument('--snml_train_file', default='../../notebooks/output/50-context-500000-data-18-questions/495000/scope.csv', type=str)
     parser.add_argument('--scope', default=5000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
+    parser.add_argument('--learning_rate', default=0.0009, type=float)
     args = parser.parse_args()
 
     # read snml train file
