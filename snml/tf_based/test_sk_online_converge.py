@@ -12,7 +12,7 @@ def print_array(a):
 if __name__ == "__main__":
     epochs = 2
     dim = '200'
-    learning_rate = 0.00165
+    learning_rate = 0.0017
     full_datas = ['490000/', '495000/', '']
     test_datas = ['485000/', '490000/', '495000/']
     mae_before = []

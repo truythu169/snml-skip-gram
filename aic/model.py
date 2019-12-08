@@ -7,7 +7,7 @@ from utils.settings import config
 class Model:
 
     # Constructor
-    def __init__(self, model_path, data_path):
+    def __init__(self, model_path, data_file):
         # Load parameters
         self.embedding = utils.load_pkl(model_path + config['SNML']['embedding'])
         self.softmax_w = utils.load_pkl(model_path + config['SNML']['softmax_w'])
@@ -22,9 +22,8 @@ class Model:
                  self.softmax_b.shape[0]
 
         # paths
-        self.data_path = data_path
         self.model_path = model_path
-        self.filename = self.data_path + config['TRAIN']['train_data']
+        self.filename = data_file
 
         # set computation
         self._set_computation(self.filename, batch_size=self.batch_size, epochs=1)

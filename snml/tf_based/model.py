@@ -85,6 +85,11 @@ class Model:
             self.g_reset_softmax_w = self.g_softmax_w.assign(self.g_d_softmax_w)
             self.g_reset_softmax_b = self.g_softmax_b.assign(self.g_d_softmax_b)
 
+            # update default weights
+            self.g_update_d_embedding = self.g_d_embedding.assign(self.g_embedding)
+            self.g_update_d_softmax_w = self.g_d_softmax_w.assign(self.g_softmax_w)
+            self.g_update_d_softmax_b = self.g_d_softmax_b.assign(self.g_softmax_b)
+
         # Tensorflow session
         self.sess = tf.Session(graph=self.train_graph)
         self.sess.run(self.g_init)
@@ -151,8 +156,12 @@ class Model:
         feed = {self.g_inputs: [word], self.g_labels: [[context]]}
         p = self.sess.run(self.g_prob, feed_dict=feed)
 
-        # update weights
-        if not update_weight:
+        # update weights (update default weights nodes in graph)
+        if update_weight:
+            self.sess.run(self.g_update_d_embedding)
+            self.sess.run(self.g_update_d_softmax_w)
+            self.sess.run(self.g_update_d_softmax_b)
+        else:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
             self.sess.run(self.g_reset_softmax_b)
