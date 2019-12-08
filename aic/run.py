@@ -1,4 +1,4 @@
-from bic.model import BICModel
+from aic.model import Model
 import argparse
 
 if __name__ == "__main__":
@@ -7,8 +7,6 @@ if __name__ == "__main__":
     parser.add_argument('--data', default='../../data/text8/', type=str)
     args = parser.parse_args()
 
-    model = BICModel(args.model, args.data)
-    bic = model.bic()
+    model = Model(args.model, args.data)
     aic = model.aic()
-    print('Bayesian information criterion: ', bic)
-    print('Akaike information criterion: ', aic)
+    print('Final Log Likelihood: ', aic)

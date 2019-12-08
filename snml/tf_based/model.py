@@ -72,7 +72,7 @@ class Model:
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
 
             # conditional probability of word given contexts
-            self.g_mul = tf.matmul(self.g_embed, tf.transpose(self.g_softmax_w))
+            self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
             self.g_logits = tf.reshape(tf.exp(self.g_mul + self.g_softmax_b), [-1])
             self.g_sum_logits = tf.reduce_sum(self.g_logits)
             self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits

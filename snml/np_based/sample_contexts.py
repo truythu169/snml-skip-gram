@@ -19,11 +19,11 @@ if __name__ == "__main__":
     # Sample contexts
     if scope + 1 > len(contexts):
         for i in range(scope - len(contexts)):
-            samples = utils.sample_context(context_distribution, n_context_sample)
+            samples = utils.sample_context_uniform(len(context_distribution), n_context_sample)
             contexts.append(samples)
 
     # Save result back to pkl
     utils.save_pkl(contexts, file_name)
 
     print(len(contexts))
-    print(len(contexts[0][0]))
+    print(len(contexts[0]))
