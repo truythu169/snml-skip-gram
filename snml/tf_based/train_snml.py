@@ -12,6 +12,7 @@ if __name__ == "__main__":
     parser.add_argument('--snml_train_file', default='../../notebooks/output/50-context-500000-data-18-questions/495000/scope.csv', type=str)
     parser.add_argument('--scope', default=5000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
+    parser.add_argument('--learning_rate', default=0.0009, type=float)
     args = parser.parse_args()
 
     # read snml train file
@@ -19,7 +20,7 @@ if __name__ == "__main__":
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
-    model = Model(args.model, args.context_path, n_neg_sample=50, n_context_sample=50, learning_rate=0.00035)
+    model = Model(args.model, args.context_path, n_neg_sample=50, n_context_sample=50, learning_rate=0.0009)
     snml_lengths = []
     print_step = 10
     start = time.time()
@@ -27,7 +28,7 @@ if __name__ == "__main__":
         w = data[i][0]
         c = data[i][1]
 
-        length = model.snml_length_sampling(w, c, epochs=args.epochs)
+        length = model.snml_length(w, c, epochs=args.epochs)
         snml_lengths.append(length)
 
         # print process
