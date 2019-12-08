@@ -7,7 +7,7 @@ import utils.tools as utils
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../notebooks/output/50-context-500000-data-18-questions/495000/model/5dim/', type=str)
+    parser.add_argument('--model', default='../../notebooks/output/50-context-500000-data-18-questions/495000/model/15dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../notebooks/output/50-context-500000-data-18-questions/495000/scope.csv', type=str)
     parser.add_argument('--scope', default=5000, type=int)
@@ -19,7 +19,7 @@ if __name__ == "__main__":
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Run snml
-    model = Model(args.model, args.context_path, n_neg_sample=50, n_context_sample=50, learning_rate=0.00035)
+    model = Model(args.model, args.context_path, n_neg_sample=50, n_context_sample=50, learning_rate=0.0009)
     snml_lengths = []
     print_step = 10
     start = time.time()
