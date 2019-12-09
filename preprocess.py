@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser.add_argument('--input', default='../data/raw data/text8', type=str)
     parser.add_argument('--output', default='../data/text8/', type=str)
     parser.add_argument('--batch_size', default=10000, type=int)
-    parser.add_argument('--window_size', default=15, type=int)
+    parser.add_argument('--window_size', default=5, type=int)
     args = parser.parse_args()
 
     # make directories
