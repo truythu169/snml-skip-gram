@@ -11,7 +11,8 @@ import os
 class SkipGram:
 
     # Constructor
-    def __init__(self, input_path, output_path, n_embedding, batch_size, epochs, n_sampled, snml=False, snml_dir=''):
+    def __init__(self, input_path, output_path, n_embedding, batch_size, epochs, n_sampled,
+                 snml=False, snml_dir='', random_seed=1234):
         self.n_embedding = n_embedding
         self.embedding = np.array([])
         self.data_path = input_path
@@ -51,7 +52,7 @@ class SkipGram:
             filename = self.data_path + config['TRAIN']['train_data']
         self.snml = snml
         self._set_training_file(filename)
-        self._set_computation(filename)
+        self._set_computation(filename, random_seed)
 
         # training data
         self.n_datums = utils.count_line(filename)
@@ -71,9 +72,11 @@ class SkipGram:
         # with self.train_graph.as_default():
         return
 
-    def _set_computation(self, file_name):
+    def _set_computation(self, file_name, random_seed=1234):
         with self.train_graph.as_default():
-            tf.set_random_seed(1234)
+            # set random seed
+            tf.set_random_seed(random_seed)
+
             # training data
             self.dataset = tf.data.experimental.make_csv_dataset(file_name,
                                                                  batch_size=self.batch_size,

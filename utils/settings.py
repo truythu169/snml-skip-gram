@@ -1,4 +1,5 @@
 import configparser
+import random
 import os
 
 # root directory path
@@ -11,3 +12,6 @@ config.read(root_dir + '/config.ini', encoding='utf-8')
 # load environments parameters
 env = configparser.ConfigParser()
 env.read(root_dir + '/env.ini', encoding='utf-8')
+
+# set random seed
+random.seed(1234)

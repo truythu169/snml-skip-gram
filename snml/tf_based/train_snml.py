@@ -28,7 +28,7 @@ if __name__ == "__main__":
         w = data[i][0]
         c = data[i][1]
 
-        length = model.snml_length(w, c, epochs=args.epochs)
+        length = model.snml_length_sampling(w, c, epochs=args.epochs)
         snml_lengths.append(length)
 
         # print process

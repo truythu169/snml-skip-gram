@@ -1,15 +1,14 @@
-import time
 import numpy as np
 import tensorflow as tf
 import utils.tools as utils
 from utils.settings import config
-import os
 
 
 class Model:
 
     # Constructor
-    def __init__(self, model_path, context_path, n_neg_sample=200, n_context_sample=1000, learning_rate=0.0004):
+    def __init__(self, model_path, context_path, n_neg_sample=200, n_context_sample=1000,
+                 learning_rate=0.0004, random_seed=1234):
         # Load parameters
         self.embedding = utils.load_pkl(model_path + config['SNML']['embedding'])
         self.softmax_w = utils.load_pkl(model_path + config['SNML']['softmax_w'])
@@ -26,18 +25,19 @@ class Model:
         # paths
         self.data_path = model_path
 
-        # Check if sample context file exits
-        # self.sample_contexts_file_name = os.path.join(self.context_path,
-        #                                               'sample_contexts_{}_uniform.pkl'.format(n_context_sample))
-        self.contexts = [] #utils.load_pkl(self.sample_contexts_file_name)
+        # Set uniform distribution as default for context sampling
+        self.contexts = []
 
         # set computation
-        self._set_computation()
+        self._set_computation(random_seed)
 
-    def _set_computation(self):
+    def _set_computation(self, random_seed):
         # computation graph
         self.train_graph = tf.Graph()
         with self.train_graph.as_default():
+            # set random seed
+            tf.set_random_seed(random_seed)
+
             # training data
             # input placeholders
             self.g_inputs = tf.placeholder(tf.int32, [None], name='inputs')
@@ -125,7 +125,7 @@ class Model:
         return snml_length
 
     def snml_length_sampling(self, word, context, epochs=10):
-        sample_contexts = self._sample_contexts(from_file=True)
+        sample_contexts = self._sample_contexts(from_file=False)
         sample_prob = 1 / self.n_context
         prob_sum = 0
 
@@ -171,6 +171,7 @@ class Model:
     def _sample_contexts(self, from_file=True):
         if not from_file:
             samples = utils.sample_context_uniform(self.n_context, self.n_context_sample)
+            print(samples[:10])
             return samples
 
         # Sample contexts
