@@ -144,7 +144,8 @@ class SkipGram:
         try:
             start = time.time()
             while True:
-                train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
+                # train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
+                train_loss, _ = self.sess.run([self.cost, self.optimizer])
                 loss += train_loss
                 epoch_sum_loss += train_loss
                 losses.append(train_loss)
