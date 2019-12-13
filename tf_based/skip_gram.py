@@ -174,7 +174,7 @@ class SkipGram:
                     wa_scores.append(wa_score['all'])
 
                     # stop criteria
-                    if epoch_loss_diff < stop_threshold or last_epoch_loss < epoch_loss:
+                    if epoch_loss_diff < stop_threshold:
                         self.epochs = iteration / self.n_batches
                         # output file
                         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, self.n_sampled,
