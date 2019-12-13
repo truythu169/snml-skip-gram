@@ -6,7 +6,7 @@ from statistics import mean
 
 class WordAnalogy:
 
-    def __init__(self, filename='datasets/word_analogy/test-18-questions.txt'):
+    def __init__(self, filename='datasets/word_analogy/google_analogy.txt'):
         with open(filename, "r") as f:
             L = f.read().splitlines()
 
@@ -139,6 +139,6 @@ class WordAnalogy:
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    file_name = '../notebooks/output/50-context-50000-data-18-questions/model/12dim/embedding-e=12-n_sampled=30-epochs=8-batch_size=10.txt'
+    file_name = '../../output/text8/20191209/full/1/100dim/embedding-e=100-n_sampled=3000-epochs=47-batch_size=1000.txt'
     embedding = Embedding.from_file(file_name)
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)

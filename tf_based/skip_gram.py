@@ -139,7 +139,10 @@ class SkipGram:
         loss = 0
         losses = []
         epoch_sum_loss = 0.
-        last_epoch_loss = 0.
+        last_epoch_loss = 999999.
+        wa_scores = []
+        if print_step == 0:
+            print_step = self.n_batches
 
         try:
             start = time.time()
@@ -162,13 +165,16 @@ class SkipGram:
                     epoch_loss = epoch_sum_loss / self.n_batches
                     epoch_sum_loss = 0
                     epoch_loss_diff = np.abs(epoch_loss - last_epoch_loss)
-                    last_epoch_loss = epoch_loss
                     print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
+
+                    # word analogy score
                     embedding = self.sess.run(self.embedding_g)
                     eval = Embedding(embedding, self.int_to_vocab, self.vocab_to_int)
-                    self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+                    wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+                    wa_scores.append(wa_score['all'])
 
-                    if epoch_loss_diff < stop_threshold:
+                    # stop criteria
+                    if epoch_loss_diff < stop_threshold or last_epoch_loss < epoch_loss:
                         self.epochs = iteration / self.n_batches
                         # output file
                         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, self.n_sampled,
@@ -177,32 +183,11 @@ class SkipGram:
                         print(self.output_dictionary + self.embedding_file)
                         break
 
+                    last_epoch_loss = epoch_loss
+
                 iteration += 1
         except tf.errors.OutOfRangeError:
             print("End of dataset")
-
-        if self.snml:
-            print('Writing snml files...')
-            # export embedding matrix
-            self.embedding = self.sess.run(self.embedding_g)
-            self.softmax_w = self.sess.run(self.softmax_w_g)
-            self.softmax_b = self.sess.run(self.softmax_b_g)
-            self.export_model(self.snml_dir)
-            self.export_embedding(self.snml_dir + self.embedding_file)
-
-            # set continue computation graph
-            scope_file = self.data_path + config['TRAIN']['scope']
-            self._set_training_file(scope_file)
-            self._set_computation()
-            self._continue_graph()
-            self.sess.run([self.assign_embedding, self.assign_softmax_b, self.assign_softmax_b])
-
-            # keep training
-            try:
-                while True:
-                    train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
-            except tf.errors.OutOfRangeError:
-                print("End of Scope")
 
         # export embedding matrix
         self.embedding = self.sess.run(self.embedding_g)
@@ -211,6 +196,7 @@ class SkipGram:
 
         # export losses
         utils.save_pkl(losses, self.output_dictionary + config['TRAIN']['loss_file'])
+        utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['loss_file'])
 
     def export_embedding(self, filename='default'):
         # write embedding result to file
