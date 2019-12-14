@@ -196,7 +196,7 @@ class SkipGram:
 
         # export losses
         utils.save_pkl(losses, self.output_dictionary + config['TRAIN']['loss_file'])
-        utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['loss_file'])
+        utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['acc_file'])
 
     def export_embedding(self, filename='default'):
         # write embedding result to file
