@@ -12,28 +12,28 @@ def print_array(a):
 if __name__ == "__main__":
     epochs = 2
     dim = '200'
-    learning_rate = 0.0017
-    full_datas = ['490000/', '495000/', '']
-    test_datas = ['485000/', '490000/', '495000/']
+    learning_rate = 0.0057
+    full_datas = ['full']
+    test_datas = ['snml']
     mae_before = []
     mae_after = []
     loss_before = []
     loss_after = []
+    n_sample = 10000
 
     for full_data, test_data in zip(full_datas, test_datas):
         print('full: ', full_data, 'test: ', test_data)
 
         # read snml train file
-        data = np.genfromtxt('../../notebooks/output/50-context-500000-data-18-questions/{}scope.csv'.format(test_data), delimiter=',').astype(int)
+        data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
 
         # full data
-        model = Model('../../notebooks/output/50-context-500000-data-18-questions/{}model/{}dim/'.format(full_data, dim),
+        model = Model('../../../output/text8/20191209/{}/1/{}dim/'.format(full_data, dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
         p_full = []
         p_snml_b = []
         p_snml_a = []
-        n_sample = 5000
 
         for i in range(n_sample):
             datum = data[i]
@@ -46,8 +46,8 @@ if __name__ == "__main__":
 
         # SNML data
         tf.reset_default_graph()
-        model = Model('../../notebooks/output/50-context-500000-data-18-questions/{}model/{}dim/'.format(test_data, dim),
-                      '../../../data/text8/contexts/', n_neg_sample=50, n_context_sample=3000, learning_rate=learning_rate)
+        model = Model('../../../output/text8/20191209/{}/1/{}dim/'.format(test_data, dim),
+                      '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
         for i in range(n_sample):
             datum = data[i]

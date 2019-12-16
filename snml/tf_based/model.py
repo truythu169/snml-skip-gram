@@ -171,7 +171,6 @@ class Model:
     def _sample_contexts(self, from_file=True):
         if not from_file:
             samples = utils.sample_context_uniform(self.n_context, self.n_context_sample)
-            print(samples[:10])
             return samples
 
         # Sample contexts
