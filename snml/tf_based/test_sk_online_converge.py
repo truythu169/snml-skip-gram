@@ -11,7 +11,7 @@ def print_array(a):
 
 if __name__ == "__main__":
     epochs = 2
-    dim = '200'
+    dim = '300'
     learning_rate = 0.0057
     full_datas = ['full']
     test_datas = ['snml']
