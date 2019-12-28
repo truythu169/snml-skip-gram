@@ -11,7 +11,7 @@ if __name__ == "__main__":
     parser.add_argument('--batch_size', default=10000, type=int)
     parser.add_argument('--print_step', default=0, type=int)
     parser.add_argument('--snml_dir', default='', type=str)
-    parser.add_argument('--stop_threshold', default=0.0000001, type=float)
+    parser.add_argument('--stop_threshold', default=0.00001, type=float)
     args = parser.parse_args()
     snml = args.snml_dir != ''
 
