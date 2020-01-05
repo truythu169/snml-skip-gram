@@ -164,10 +164,11 @@ class SkipGram:
                     start = time.time()
 
                 if iteration % self.n_batches == 0:
+                    epochs = iteration / self.n_batches
                     epoch_loss = epoch_sum_loss / self.n_batches
                     epoch_sum_loss = 0
                     epoch_loss_diff = np.abs(epoch_loss - last_epoch_loss)
-                    print('Epochs {} loss: {}'.format(iteration / self.n_batches, epoch_loss))
+                    print('Epochs {} loss: {}'.format(epochs, epoch_loss))
 
                     # word analogy score
                     embedding = self.sess.run(self.embedding_g)
@@ -184,6 +185,13 @@ class SkipGram:
                         print('Loss diff: {}, stop training.'.format(epoch_loss_diff))
                         print(self.output_dictionary + self.embedding_file)
                         break
+
+                    # Save step
+                    if epochs % 10 == 0:
+                        self.embedding = self.sess.run(self.embedding_g)
+                        self.softmax_w = self.sess.run(self.softmax_w_g)
+                        self.softmax_b = self.sess.run(self.softmax_b_g)
+                        self.export_model(self.output_dictionary + 'step-{}/'.format(int(epochs)))
 
                     last_epoch_loss = epoch_loss
 
