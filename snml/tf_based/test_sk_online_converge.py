@@ -9,66 +9,56 @@ def print_array(a):
         print(e)
 
 
+def get_loss_list(m, d):
+    loss_list = []
+
+    for datum in d:
+        w, c = int(datum[0]), int(datum[1])
+        loss_list.append(-np.log(m.get_prob(w, c)))
+
+    return loss_list
+
+
 if __name__ == "__main__":
     epochs = 2
-    dim = '300'
-    learning_rate = 0.0057
-    full_datas = ['full']
+    dim = '50'
+    learning_rate = 0.002754
+    full_datas = ['snml']
     test_datas = ['snml']
+    n_sample = 10000
+    # read snml train file
+    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
+
     mae_before = []
     mae_after = []
     loss_before = []
     loss_after = []
-    n_sample = 10000
-
     for full_data, test_data in zip(full_datas, test_datas):
         print('full: ', full_data, 'test: ', test_data)
 
-        # read snml train file
-        data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
-
         # full data
-        model = Model('../../../output/text8/20191209/{}/1/{}dim/'.format(full_data, dim),
+        model = Model('../../../output/text8/20191228m/{}/1/{}dim/step-150/'.format(full_data, dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
-        p_full = []
-        p_snml_b = []
-        p_snml_a = []
-
-        for i in range(n_sample):
-            datum = data[i]
-            w, c = data[i][0], data[i][1]
-            w = int(w)
-            c = int(c)
-
-            pf = -np.log(model.get_prob(w, c))
-            p_full.append(pf)
+        p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         tf.reset_default_graph()
-        model = Model('../../../output/text8/20191209/{}/1/{}dim/'.format(test_data, dim),
+        model = Model('../../../output/text8/20191228m/{}/1/{}dim/step-150/'.format(test_data, dim),
                       '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
-        for i in range(n_sample):
-            datum = data[i]
-            w, c = data[i][0], data[i][1]
-            w = int(w)
-            c = int(c)
-
-            ps_b = -np.log(model.get_prob(w, c))
-            p_snml_b.append(ps_b)
+        p_snml_b = get_loss_list(model, data[:n_sample])
 
         for i in range(n_sample):
             datum = data[i]
-            w, c = data[i][0], data[i][1]
-            w = int(w)
-            c = int(c)
+            w, c = int(data[i][0]), int(data[i][1])
 
             ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
-            p_snml_a.append(ps_a)
 
             if i % 2000 == 0:
                 print('{} th loop'.format(i))
+
+        p_snml_a = get_loss_list(model, data[:n_sample])
 
         print('MAE before: ', mean_absolute_error(p_snml_b, p_full))
         print('MAE after: ', mean_absolute_error(p_snml_a, p_full))
@@ -79,11 +69,10 @@ if __name__ == "__main__":
         loss_before.append(sum(p_full)[0])
         loss_after.append(sum(p_snml_a)[0])
 
-    print('MAE before: ')
+    print('Before: ')
     print_array(mae_before)
-    print('MAE after: ')
-    print_array(mae_after)
-    print('Loss before: ')
     print_array(loss_before)
-    print('Loss after: ')
+
+    print('After: ')
+    print_array(mae_after)
     print_array(loss_after)
