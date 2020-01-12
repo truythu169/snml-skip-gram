@@ -71,6 +71,16 @@ class Model:
             self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
 
+            # full loss
+            logits = tf.matmul(self.g_embed, tf.transpose(self.g_softmax_w))
+            logits = tf.nn.bias_add(logits, self.g_softmax_b)
+            labels_one_hot = tf.one_hot(self.g_labels, self.n_context)
+            self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
+                labels=labels_one_hot,
+                logits=logits)
+            self.full_cost = tf.reduce_mean(self.full_loss)
+            self.g_full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
+
             # conditional probability of word given contexts
             self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
             self.g_logits = tf.reshape(tf.exp(self.g_mul + self.g_softmax_b), [-1])
