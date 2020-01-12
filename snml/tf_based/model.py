@@ -12,7 +12,6 @@ class Model:
         # Load parameters
         self.embedding = utils.load_pkl(model_path + config['SNML']['embedding'])
         self.softmax_w = utils.load_pkl(model_path + config['SNML']['softmax_w'])
-        self.softmax_b = utils.load_pkl(model_path + config['SNML']['softmax_b'])
         self.n_vocab = self.embedding.shape[0]
         self.n_embedding = self.embedding.shape[1]
         self.n_context = self.softmax_w.shape[0]
@@ -46,7 +45,6 @@ class Model:
             # default weights
             self.g_d_embedding = tf.get_variable("d_embedding", initializer=self.embedding)
             self.g_d_softmax_w = tf.get_variable("d_softmax_w", initializer=self.softmax_w)
-            self.g_d_softmax_b = tf.get_variable("d_softmax_b", initializer=self.softmax_b)
 
             # embedding layer
             self.g_embedding = tf.get_variable("embedding", initializer=self.embedding)
@@ -54,38 +52,36 @@ class Model:
 
             # softmax layer
             self.g_softmax_w = tf.get_variable("softmax_w", initializer=self.softmax_w)
-            self.g_softmax_b = tf.get_variable("softmax_b", initializer=self.softmax_b)
 
             # Calculate the loss using negative sampling
-            self.g_labels = tf.reshape(self.g_labels, [-1, 1])
-            self.g_loss = tf.nn.sampled_softmax_loss(
-                weights=self.g_softmax_w,
-                biases=self.g_softmax_b,
-                labels=self.g_labels,
-                inputs=self.g_embed,
-                num_sampled=self.n_neg_sample,
-                num_classes=self.n_context)
-
-            # training operations
-            self.g_cost = tf.reduce_mean(self.g_loss)
-            self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
+            # self.g_labels = tf.reshape(self.g_labels, [-1, 1])
+            # self.g_loss = tf.nn.sampled_softmax_loss(
+            #     weights=self.g_softmax_w,
+            #     biases=self.g_softmax_b,
+            #     labels=self.g_labels,
+            #     inputs=self.g_embed,
+            #     num_sampled=self.n_neg_sample,
+            #     num_classes=self.n_context)
+            #
+            # # training operations
+            # self.g_cost = tf.reduce_mean(self.g_loss)
+            # self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
 
             # full loss
             logits = tf.matmul(self.g_embed, tf.transpose(self.g_softmax_w))
-            logits = tf.nn.bias_add(logits, self.g_softmax_b)
             labels_one_hot = tf.one_hot(self.g_labels, self.n_context)
             self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
                 labels=labels_one_hot,
                 logits=logits)
             self.full_cost = tf.reduce_mean(self.full_loss)
-            self.g_full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
+            self.full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
 
             # conditional probability of word given contexts
-            self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
-            self.g_logits = tf.reshape(tf.exp(self.g_mul + self.g_softmax_b), [-1])
-            self.g_sum_logits = tf.reduce_sum(self.g_logits)
-            self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits
+            # self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
+            # self.g_logits = tf.reshape(tf.exp(self.g_mul + self.g_softmax_b), [-1])
+            # self.g_sum_logits = tf.reduce_sum(self.g_logits)
+            # self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits
 
             # init variables
             self.g_init = tf.global_variables_initializer()
@@ -93,32 +89,30 @@ class Model:
             # reset weights
             self.g_reset_embedding = self.g_embedding.assign(self.g_d_embedding)
             self.g_reset_softmax_w = self.g_softmax_w.assign(self.g_d_softmax_w)
-            self.g_reset_softmax_b = self.g_softmax_b.assign(self.g_d_softmax_b)
 
             # update default weights
             self.g_update_d_embedding = self.g_d_embedding.assign(self.g_embedding)
             self.g_update_d_softmax_w = self.g_d_softmax_w.assign(self.g_softmax_w)
-            self.g_update_d_softmax_b = self.g_d_softmax_b.assign(self.g_softmax_b)
 
         # Tensorflow session
         self.sess = tf.Session(graph=self.train_graph)
         self.sess.run(self.g_init)
 
-    def get_neg_prob(self, word, context):
-        feed = {self.g_inputs: [word],
-                self.g_labels: [[context]]}
-
-        train_loss = self.sess.run(self.g_cost, feed_dict=feed)
-
-        return np.exp(-train_loss)
+    # def get_neg_prob(self, word, context):
+    #     feed = {self.g_inputs: [word],
+    #             self.g_labels: [[context]]}
+    #
+    #     train_loss = self.sess.run(self.full_cost, feed_dict=feed)
+    #
+    #     return np.exp(-train_loss)
 
     def get_prob(self, word, context):
         feed = {self.g_inputs: [word],
                 self.g_labels: [[context]]}
 
-        prob = self.sess.run(self.g_prob, feed_dict=feed)
+        prob = self.sess.run(self.full_cost, feed_dict=feed)
 
-        return prob
+        return np.exp(-prob)
 
     def snml_length(self, word, context, epochs=10):
         prob_sum = 0
@@ -136,7 +130,6 @@ class Model:
 
     def snml_length_sampling(self, word, context, epochs=10):
         sample_contexts = self._sample_contexts(from_file=False)
-        sample_prob = 1 / self.n_context
         prob_sum = 0
 
         # Update all other context
@@ -145,7 +138,7 @@ class Model:
             prob = self.train_one_sample(word, c, epochs, update_weight=False)
             prob_sum += prob
 
-        prob_sum = prob_sum / (sample_prob * self.n_context_sample)
+        prob_sum = prob_sum * self.n_context / self.n_context_sample
 
         # Update true context and save weights
         prob = self.train_one_sample(word, context, epochs, update_weight=True)
@@ -156,27 +149,20 @@ class Model:
 
     def train_one_sample(self, word, context, epochs=20, update_weight=False):
         # train weights
+        feed = {self.g_inputs: [word],
+                self.g_labels: [[context]]}
         for e in range(epochs):
-            feed = {self.g_inputs: [word],
-                    self.g_labels: [[context]]}
-
-            train_loss, _ = self.sess.run([self.g_cost, self.g_optimizer], feed_dict=feed)
-
-        # probability of word given contexts
-        feed = {self.g_inputs: [word], self.g_labels: [[context]]}
-        p = self.sess.run(self.g_prob, feed_dict=feed)
+            loss, _ = self.sess.run([self.full_cost, self.full_optimizer], feed_dict=feed)
 
         # update weights (update default weights nodes in graph)
         if update_weight:
             self.sess.run(self.g_update_d_embedding)
             self.sess.run(self.g_update_d_softmax_w)
-            self.sess.run(self.g_update_d_softmax_b)
         else:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
-            self.sess.run(self.g_reset_softmax_b)
 
-        return p
+        return np.exp(-loss)
 
     def _sample_contexts(self, from_file=True):
         if not from_file:
