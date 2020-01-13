@@ -117,7 +117,7 @@ class SkipGram:
                 logits=logits)
             self.full_cost = tf.reduce_mean(self.full_loss)
             # self.full_optimizer = tf.train.AdamOptimizer().minimize(self.full_cost)
-            self.full_optimizer = tf.train.MomentumOptimizer(learning_rate=0.2, momentum=0.9).minimize(self.full_cost)
+            self.full_optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.full_cost)
 
             # context distribution
             self.g_prob = tf.nn.softmax(logits)
@@ -149,8 +149,8 @@ class SkipGram:
         try:
             start = time.time()
             while True:
-                # train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
-                train_loss, _ = self.sess.run([self.cost, self.optimizer])
+                train_loss, _ = self.sess.run([self.full_cost, self.full_optimizer])
+                # train_loss, _ = self.sess.run([self.cost, self.optimizer])
                 loss += train_loss
                 epoch_sum_loss += train_loss
                 losses.append(train_loss)
