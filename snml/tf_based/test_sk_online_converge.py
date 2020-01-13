@@ -22,18 +22,18 @@ def get_loss_list(m, d):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dim', default='40', type=str)
+    parser.add_argument('--dim', default='50', type=str)
     parser.add_argument('--rate', default=0.003, type=float)
     args = parser.parse_args()
 
     epochs = 2
     dim = args.dim
     learning_rate = args.rate
-    full_datas = ['full']
+    full_datas = ['snml']
     test_datas = ['snml']
     n_sample = 10000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope2.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/text8/scope1.csv', delimiter=',').astype(int)
 
     mae_before = []
     mae_after = []
@@ -43,14 +43,14 @@ if __name__ == "__main__":
         print('full: ', full_data, 'test: ', test_data)
 
         # full data
-        model = Model('../../../output/text8/20200107/{}/1/train1/{}dim/step-150/'.format(full_data, dim),
+        model = Model('../../../output/text8/20200107/{}/1/train2/{}dim/'.format(full_data, dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         tf.reset_default_graph()
-        model = Model('../../../output/text8/20200107/{}/1/train1/{}dim/step-150/'.format(test_data, dim),
+        model = Model('../../../output/text8/20200107/{}/1/train1/{}dim/'.format(test_data, dim),
                       '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
@@ -72,8 +72,8 @@ if __name__ == "__main__":
 
         mae_before.append(mean_absolute_error(p_snml_b, p_full))
         mae_after.append(mean_absolute_error(p_snml_a, p_full))
-        loss_before.append(sum(p_full)[0])
-        loss_after.append(sum(p_snml_a)[0])
+        loss_before.append(sum(p_full))
+        loss_after.append(sum(p_snml_a))
 
     print('Before: ')
     print_array(mae_before)

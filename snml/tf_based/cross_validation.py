@@ -1,8 +1,5 @@
 from snml.tf_based.model import Model
-from sklearn.metrics import mean_absolute_error
-import tensorflow as tf
 import numpy as np
-import argparse
 
 
 def print_array(a):
@@ -24,7 +21,7 @@ if __name__ == "__main__":
     dims = [40, 45, 50, 55, 60, 65, 70, 80]
     n_sample = 10000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope3.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/text8/scope1.csv', delimiter=',').astype(int)
 
     cvs = []
     for dim in dims:
@@ -33,7 +30,7 @@ if __name__ == "__main__":
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.1)
 
         p_full = get_loss_list(model, data[:n_sample])
-        cvs.append(sum(p_full)[0])
+        cvs.append(sum(p_full))
 
     for dim, cv in zip(dims, cvs):
         print('Dim {}: {}'.format(dim, cv))
