@@ -106,7 +106,7 @@ class SkipGram:
 
             self.cost = tf.reduce_mean(self.loss)
             # self.optimizer = tf.train.AdamOptimizer().minimize(self.cost)
-            self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.2, momentum=0.9).minimize(self.cost)
+            self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.cost)
 
             # full loss
             logits = tf.matmul(self.embed, tf.transpose(self.softmax_w_g))
