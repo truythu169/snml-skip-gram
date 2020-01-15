@@ -106,13 +106,13 @@ class Model:
     #
     #     return np.exp(-train_loss)
 
-    def get_prob(self, word, context):
+    def get_loss(self, word, context):
         feed = {self.g_inputs: [word],
                 self.g_labels: [[context]]}
 
-        prob = self.sess.run(self.full_cost, feed_dict=feed)
+        loss = self.sess.run(self.full_cost, feed_dict=feed)
 
-        return np.exp(-prob)
+        return loss
 
     def snml_length(self, word, context, epochs=10):
         prob_sum = 0
@@ -152,7 +152,9 @@ class Model:
         feed = {self.g_inputs: [word],
                 self.g_labels: [[context]]}
         for e in range(epochs):
-            loss, _ = self.sess.run([self.full_cost, self.full_optimizer], feed_dict=feed)
+            self.sess.run(self.full_optimizer, feed_dict=feed)
+
+        loss = self.sess.run(self.full_cost, feed_dict=feed)
 
         # update weights (update default weights nodes in graph)
         if update_weight:
@@ -162,7 +164,7 @@ class Model:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
 
-        return np.exp(-loss)
+        return loss
 
     def _sample_contexts(self, from_file=True):
         if not from_file:

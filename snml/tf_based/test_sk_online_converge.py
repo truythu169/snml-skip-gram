@@ -15,7 +15,7 @@ def get_loss_list(m, d):
 
     for datum in d:
         w, c = int(datum[0]), int(datum[1])
-        loss_list.append(-np.log(m.get_prob(w, c)))
+        loss_list.append(m.get_loss(w, c))
 
     return loss_list
 
