@@ -8,7 +8,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_embedding', default=5, type=int)
     parser.add_argument('--n_sampled', default=3000, type=int)
     parser.add_argument('--epochs', default=200, type=int)
-    parser.add_argument('--batch_size', default=10000, type=int)
+    parser.add_argument('--batch_size', default=1000, type=int)
     parser.add_argument('--print_step', default=0, type=int)
     parser.add_argument('--snml_dir', default='', type=str)
     parser.add_argument('--stop_threshold', default=0.00000001, type=float)
