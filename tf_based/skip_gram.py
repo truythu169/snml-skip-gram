@@ -92,7 +92,6 @@ class SkipGram:
 
             # softmax layer
             self.softmax_w_g = tf.Variable(tf.truncated_normal((self.n_context, self.n_embedding)))
-            self.softmax_b_g = tf.Variable(tf.zeros(self.n_context))
 
             # Calculate the loss using negative sampling
             # self.labels = tf.reshape(self.labels, [-1, 1])
@@ -110,14 +109,13 @@ class SkipGram:
 
             # full loss
             logits = tf.matmul(self.embed, tf.transpose(self.softmax_w_g))
-            logits = tf.nn.bias_add(logits, self.softmax_b_g)
             labels_one_hot = tf.one_hot(self.labels, self.n_context)
             self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
                 labels=labels_one_hot,
                 logits=logits)
             self.full_cost = tf.reduce_mean(self.full_loss)
-            # self.full_optimizer = tf.train.AdamOptimizer().minimize(self.full_cost)
-            self.full_optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.full_cost)
+            self.full_optimizer = tf.train.AdamOptimizer().minimize(self.full_cost)
+            # self.full_optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.full_cost)
 
             # context distribution
             self.g_prob = tf.nn.softmax(logits)
@@ -134,7 +132,6 @@ class SkipGram:
             # continue weights
             self.assign_embedding = self.embedding_g.assign(self.embedding)
             self.assign_softmax_w = self.softmax_w_g.assign(self.softmax_w)
-            self.assign_softmax_b = self.softmax_b_g.assign(self.softmax_b)
 
     def train(self, print_step=1000, stop_threshold=0):
         iteration = 1
@@ -190,7 +187,6 @@ class SkipGram:
                     if epochs % 10 == 0:
                         self.embedding = self.sess.run(self.embedding_g)
                         self.softmax_w = self.sess.run(self.softmax_w_g)
-                        self.softmax_b = self.sess.run(self.softmax_b_g)
                         self.export_model(self.output_dictionary + 'step-{}/'.format(int(epochs)))
 
                     last_epoch_loss = epoch_loss
@@ -202,7 +198,6 @@ class SkipGram:
         # export embedding matrix
         self.embedding = self.sess.run(self.embedding_g)
         self.softmax_w = self.sess.run(self.softmax_w_g)
-        self.softmax_b = self.sess.run(self.softmax_b_g)
 
         # export losses
         utils.save_pkl(losses, self.output_dictionary + config['TRAIN']['loss_file'])
@@ -231,4 +226,3 @@ class SkipGram:
 
         utils.save_pkl(self.embedding, out_dir + config['TRAIN']['embedding_pkl'])
         utils.save_pkl(self.softmax_w, out_dir + config['TRAIN']['softmax_w_pkl'])
-        utils.save_pkl(self.softmax_b, out_dir + config['TRAIN']['softmax_b_pkl'])
