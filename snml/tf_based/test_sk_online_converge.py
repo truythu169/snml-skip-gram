@@ -27,7 +27,7 @@ if __name__ == "__main__":
     parser.add_argument('--rate', default=0.0075, type=float)
     args = parser.parse_args()
 
-    epochs = 1
+    epochs = 2
     dim = args.dim
     learning_rate = args.rate
     full_datas = ['snml']
