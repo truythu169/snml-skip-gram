@@ -167,7 +167,7 @@ class Model:
             self.sess.run(self.g_reset_softmax_w)
             self.sess.run(self.g_reset_softmax_b)
 
-        return p
+        return p[0]
 
     def _sample_contexts(self, from_file=True):
         if not from_file:

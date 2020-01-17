@@ -3,6 +3,7 @@ from sklearn.metrics import mean_absolute_error
 import tensorflow as tf
 import numpy as np
 import argparse
+from utils.tools import save_pkl
 
 
 def print_array(a):
@@ -22,8 +23,8 @@ def get_loss_list(m, d):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dim', default='50', type=str)
-    parser.add_argument('--rate', default=0.007365, type=float)
+    parser.add_argument('--dim', default='55', type=str)
+    parser.add_argument('--rate', default=0.0075, type=float)
     args = parser.parse_args()
 
     epochs = 1
@@ -39,6 +40,8 @@ if __name__ == "__main__":
     mae_after = []
     loss_before = []
     loss_after = []
+    # process = []
+
     for full_data, test_data in zip(full_datas, test_datas):
         print('full: ', full_data, 'test: ', test_data)
 
@@ -55,16 +58,16 @@ if __name__ == "__main__":
 
         p_snml_b = get_loss_list(model, data[:n_sample])
 
+        p_snml_a = []
         for i in range(n_sample):
             datum = data[i]
             w, c = int(data[i][0]), int(data[i][1])
 
             ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
+            p_snml_a.append(ps_a)
 
             if i % 2000 == 0:
                 print('{} th loop'.format(i))
-
-        p_snml_a = get_loss_list(model, data[:n_sample])
 
         print('MAE before: ', mean_absolute_error(p_snml_b, p_full))
         print('MAE after: ', mean_absolute_error(p_snml_a, p_full))
@@ -74,6 +77,9 @@ if __name__ == "__main__":
         mae_after.append(mean_absolute_error(p_snml_a, p_full))
         loss_before.append(sum(p_full))
         loss_after.append(sum(p_snml_a))
+
+    # save_pkl(process, 'cv_lines/zero_snml_{}dim.pkl'.format(dim), local=True)
+    # save_pkl(p_snml_a, 'cv_lines/after_snml_{}dim.pkl'.format(dim), local=True)
 
     print('Before: ')
     print_array(mae_before)
