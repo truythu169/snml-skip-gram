@@ -56,20 +56,30 @@ class Model:
             self.g_softmax_w = tf.get_variable("softmax_w", initializer=self.softmax_w)
             self.g_softmax_b = tf.get_variable("softmax_b", initializer=self.softmax_b)
 
-            # Calculate the loss using negative sampling
-            self.g_labels = tf.reshape(self.g_labels, [-1, 1])
-            self.g_loss = tf.nn.sampled_softmax_loss(
-                weights=self.g_softmax_w,
-                biases=self.g_softmax_b,
-                labels=self.g_labels,
-                inputs=self.g_embed,
-                num_sampled=self.n_neg_sample,
-                num_classes=self.n_context)
-
-            # training operations
-            self.g_cost = tf.reduce_mean(self.g_loss)
-            self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
+            # # Calculate the loss using negative sampling
+            # self.g_labels = tf.reshape(self.g_labels, [-1, 1])
+            # self.g_loss = tf.nn.sampled_softmax_loss(
+            #     weights=self.g_softmax_w,
+            #     biases=self.g_softmax_b,
+            #     labels=self.g_labels,
+            #     inputs=self.g_embed,
+            #     num_sampled=self.n_neg_sample,
+            #     num_classes=self.n_context)
+            #
+            # # training operations
+            # self.g_cost = tf.reduce_mean(self.g_loss)
+            # self.g_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.g_cost)
             # self.g_optimizer_one = tf.train.AdamOptimizer(learning_rate=0.001).minimize(self.g_cost)
+
+            # full loss
+            logits = tf.matmul(self.g_embed, tf.transpose(self.g_softmax_w))
+            logits = tf.nn.bias_add(logits, self.g_softmax_b)
+            labels_one_hot = tf.one_hot(self.g_labels, self.n_context)
+            self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
+                labels=labels_one_hot,
+                logits=logits)
+            self.full_cost = tf.reduce_mean(self.full_loss)
+            self.full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
 
             # conditional probability of word given contexts
             self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
@@ -94,21 +104,13 @@ class Model:
         self.sess = tf.Session(graph=self.train_graph)
         self.sess.run(self.g_init)
 
-    def get_neg_prob(self, word, context):
+    def get_loss(self, word, context):
         feed = {self.g_inputs: [word],
                 self.g_labels: [[context]]}
 
-        train_loss = self.sess.run(self.g_cost, feed_dict=feed)
+        loss = self.sess.run(self.full_cost, feed_dict=feed)
 
-        return np.exp(-train_loss)
-
-    def get_prob(self, word, context):
-        feed = {self.g_inputs: [word],
-                self.g_labels: [[context]]}
-
-        prob = self.sess.run(self.g_prob, feed_dict=feed)
-
-        return prob
+        return loss
 
     def snml_length(self, word, context, epochs=10):
         prob_sum = 0
@@ -146,14 +148,13 @@ class Model:
 
     def train_one_sample(self, word, context, epochs=20, update_weight=False):
         # train weights
-        for e in range(epochs):
-            feed = {self.g_inputs: [word],
-                    self.g_labels: [[context]]}
+        feed = {self.g_inputs: [word],
+                self.g_labels: [[context]]}
 
-            train_loss, _ = self.sess.run([self.g_cost, self.g_optimizer], feed_dict=feed)
+        for e in range(epochs):
+            self.sess.run(self.full_optimizer, feed_dict=feed)
 
         # probability of word given contexts
-        feed = {self.g_inputs: [word], self.g_labels: [[context]]}
         p = self.sess.run(self.g_prob, feed_dict=feed)
 
         # update weights (update default weights nodes in graph)

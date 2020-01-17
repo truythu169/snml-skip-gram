@@ -95,18 +95,18 @@ class SkipGram:
             self.softmax_b_g = tf.Variable(tf.zeros(self.n_context))
 
             # Calculate the loss using negative sampling
-            self.labels = tf.reshape(self.labels, [-1, 1])
-            self.loss = tf.nn.sampled_softmax_loss(
-                weights=self.softmax_w_g,
-                biases=self.softmax_b_g,
-                labels=self.labels,
-                inputs=self.embed,
-                num_sampled=self.n_sampled,
-                num_classes=self.n_context)
-
-            self.cost = tf.reduce_mean(self.loss)
+            # self.labels = tf.reshape(self.labels, [-1, 1])
+            # self.loss = tf.nn.sampled_softmax_loss(
+            #     weights=self.softmax_w_g,
+            #     biases=self.softmax_b_g,
+            #     labels=self.labels,
+            #     inputs=self.embed,
+            #     num_sampled=self.n_sampled,
+            #     num_classes=self.n_context)
+            #
+            # self.cost = tf.reduce_mean(self.loss)
             # self.optimizer = tf.train.AdamOptimizer().minimize(self.cost)
-            self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.cost)
+            # self.optimizer = tf.train.MomentumOptimizer(learning_rate=0.4, momentum=0.9).minimize(self.cost)
 
             # full loss
             logits = tf.matmul(self.embed, tf.transpose(self.softmax_w_g))
