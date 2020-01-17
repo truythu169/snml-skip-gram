@@ -164,7 +164,7 @@ class Model:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
 
-        return loss
+        return np.exp(-loss)
 
     def _sample_contexts(self, from_file=True):
         if not from_file:

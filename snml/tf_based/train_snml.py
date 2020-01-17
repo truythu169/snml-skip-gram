@@ -10,8 +10,8 @@ if __name__ == "__main__":
     parser.add_argument('--model', default='../../../output/text8/20200114/snml/1/train1/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope1.csv', type=str)
-    parser.add_argument('--scope', default=5, type=int)
-    parser.add_argument('--epochs', default=1, type=int)
+    parser.add_argument('--scope', default=10000, type=int)
+    parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.0026, type=float)
     args = parser.parse_args()
 
@@ -22,7 +22,7 @@ if __name__ == "__main__":
     # Run snml
     model = Model(args.model, args.context_path, n_neg_sample=3000, n_context_sample=3000, learning_rate=args.learning_rate)
     snml_lengths = []
-    print_step = 1
+    print_step = 10
     start = time.time()
     for i in range(args.scope):
         w = data[i][0]
