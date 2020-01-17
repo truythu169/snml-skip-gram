@@ -78,10 +78,10 @@ class Model:
             self.full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
 
             # conditional probability of word given contexts
-            # self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
-            # self.g_logits = tf.reshape(tf.exp(self.g_mul + self.g_softmax_b), [-1])
-            # self.g_sum_logits = tf.reduce_sum(self.g_logits)
-            # self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits
+            self.g_sum = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
+            self.g_logits = tf.reshape(tf.exp(self.g_sum), [-1])
+            self.g_sum_logits = tf.reduce_sum(self.g_logits)
+            self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits
 
             # init variables
             self.g_init = tf.global_variables_initializer()
@@ -154,7 +154,7 @@ class Model:
         for e in range(epochs):
             self.sess.run(self.full_optimizer, feed_dict=feed)
 
-        loss = self.sess.run(self.full_cost, feed_dict=feed)
+        prob = self.sess.run(self.g_prob, feed_dict=feed)
 
         # update weights (update default weights nodes in graph)
         if update_weight:
@@ -164,7 +164,7 @@ class Model:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
 
-        return np.exp(-loss)
+        return prob[0]
 
     def _sample_contexts(self, from_file=True):
         if not from_file:
