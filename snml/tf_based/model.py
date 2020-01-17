@@ -78,7 +78,8 @@ class Model:
             self.full_optimizer = tf.train.GradientDescentOptimizer(learning_rate=self.learning_rate).minimize(self.full_cost)
 
             # conditional probability of word given contexts
-            self.g_logits = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
+            self.g_sum = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
+            self.g_logits = tf.reshape(tf.exp(self.g_sum), [-1])
             self.g_sum_logits = tf.reduce_sum(self.g_logits)
             self.g_prob = tf.gather(self.g_logits, tf.reshape(self.g_labels, [-1])) / self.g_sum_logits
 
@@ -163,7 +164,7 @@ class Model:
             self.sess.run(self.g_reset_embedding)
             self.sess.run(self.g_reset_softmax_w)
 
-        return prob
+        return prob[0]
 
     def _sample_contexts(self, from_file=True):
         if not from_file:

@@ -18,15 +18,15 @@ def get_loss_list(m, d):
 
 
 if __name__ == "__main__":
-    dims = [40]
+    dims = [40, 50, 60]
     n_sample = 10000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope3.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/text8/scope1.csv', delimiter=',').astype(int)
 
     cvs = []
     for dim in dims:
         # full data
-        model = Model('../../../output/text8/20200114/snml/1/train2/{}dim/'.format(dim),
+        model = Model('../../../output/text8/20200107/snml/1/train1/{}dim/'.format(dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.1)
 
         p_full = get_loss_list(model, data[:n_sample])
