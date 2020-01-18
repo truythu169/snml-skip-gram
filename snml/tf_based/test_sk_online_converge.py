@@ -43,14 +43,14 @@ if __name__ == "__main__":
         print('full: ', full_data, 'test: ', test_data)
 
         # full data
-        model = Model('../../../output/text8/20200107/{}/1/train2/{}dim/'.format(full_data, dim),
+        model = Model('../../../output/text8/20200114/{}/1/train2/{}dim/'.format(full_data, dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         tf.reset_default_graph()
-        model = Model('../../../output/text8/20200107/{}/1/train1/{}dim/'.format(test_data, dim),
+        model = Model('../../../output/text8/20200114/{}/1/train1/{}dim/'.format(test_data, dim),
                       '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
