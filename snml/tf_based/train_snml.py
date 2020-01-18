@@ -3,28 +3,48 @@ import time
 import numpy as np
 import argparse
 import utils.tools as utils
+import os
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/text8/20200114/snml/1/train1/50dim/', type=str)
+    parser.add_argument('--model', default='../../../output/text8/20191209/snml/1/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope1.csv', type=str)
-    parser.add_argument('--scope', default=5, type=int)
-    parser.add_argument('--epochs', default=1, type=int)
+    parser.add_argument('--scope', default=10000, type=int)
+    parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.0026, type=float)
+    parser.add_argument('--continue_from', default=0, type=int)
+    parser.add_argument('--continue_scope', default=0, type=int)
     args = parser.parse_args()
+
+    # Set up parameters
+    if args.continue_scope == 0:
+        args.continue_scope = args.scope
 
     # read snml train file
     utils.download_from_gcs(args.snml_train_file)
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
+    # Initialize model
+    model = Model(args.model, args.context_path, n_neg_sample=3000, n_context_sample=3000,
+                  learning_rate=args.learning_rate)
+
+    # Continue from previous
+    previous_file = args.model + '{}-step/scope-{}-snml_length.pkl'.format(args.continue_from, args.continue_scope)
+    if os.path.isfile(previous_file):
+        snml_lengths = utils.load_pkl(previous_file)
+    else:
+        snml_lengths = []
+
+    for i in range(args.continue_from):
+        model.train_one_sample(data[i][0], data[i][1], epochs=args.epochs, update_weight=True)
+    print('Continue step: {}, from file: {}'.format(args.continue_from, previous_file))
+
     # Run snml
-    model = Model(args.model, args.context_path, n_neg_sample=3000, n_context_sample=3000, learning_rate=args.learning_rate)
-    snml_lengths = []
-    print_step = 1
+    print_step = 10
     start = time.time()
-    for i in range(args.scope):
+    for i in range(args.continue_from, args.scope):
         w = data[i][0]
         c = data[i][1]
 
