@@ -19,10 +19,10 @@ def get_loss_list(m, d):
 
 
 if __name__ == "__main__":
-    dims = [30, 50, 80, 100]
-    n_sample = 10000
+    dims = [50, 55, 60, 70, 80]
+    n_sample = 30000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope1.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
 
     for dim in dims:
         # full data

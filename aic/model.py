@@ -11,15 +11,13 @@ class Model:
         # Load parameters
         self.embedding = utils.load_pkl(model_path + config['SNML']['embedding'])
         self.softmax_w = utils.load_pkl(model_path + config['SNML']['softmax_w'])
-        self.softmax_b = utils.load_pkl(model_path + config['SNML']['softmax_b'])
         self.n_vocab = self.embedding.shape[0]
         self.n_embedding = self.embedding.shape[1]
         self.n_context = self.softmax_w.shape[0]
         self.batch_size = 5000
         self.sum_log_likelihood = 0
         self.k = self.embedding.shape[0] * self.embedding.shape[1] + \
-                 self.softmax_w.shape[0] * self.softmax_w.shape[1] + \
-                 self.softmax_b.shape[0]
+                 self.softmax_w.shape[0] * self.softmax_w.shape[1]
 
         # paths
         self.model_path = model_path
@@ -47,11 +45,10 @@ class Model:
 
             # softmax layer
             self.g_softmax_w = tf.get_variable("softmax_w", initializer=self.softmax_w)
-            self.g_softmax_b = tf.get_variable("softmax_b", initializer=self.softmax_b)
 
             # conditional probability of word given contexts
             self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
-            self.g_logits = tf.exp(self.g_mul + self.g_softmax_b)
+            self.g_logits = tf.exp(self.g_mul)
             self.g_sum_logits = tf.reduce_sum(self.g_logits, axis=1)
             self.indices = tf.stack([tf.range(tf.shape(self.g_labels)[0]), self.g_labels], axis=1)
             self.gather = tf.gather_nd(self.g_logits, self.indices)
