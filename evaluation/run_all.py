@@ -9,13 +9,13 @@ if __name__ == "__main__":
     word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
 
     suffix = ''
-    dimension_list = [40, 50, 60, 70]
-    epochs = [200, 200, 200, 200]
+    dimension_list = [100]
+    epochs = [200]
     wa_list = []
     ws_list = []
 
     for dimension, epoch in zip(dimension_list, epochs):
-        filename = '../../output/text8/20200114/snml/1/train1/{}dim/embedding-e={}-n_sampled=3000-epochs={}-batch_size=1000{}.txt'.format(dimension, dimension, epoch, suffix)
+        filename = '../../output/text8/20200114/snml/1/train2/{}dim/embedding-e={}-n_sampled=3000-epochs={}-batch_size=1000{}.txt'.format(dimension, dimension, epoch, suffix)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 
