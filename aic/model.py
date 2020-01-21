@@ -18,6 +18,9 @@ class Model:
         self.sum_log_likelihood = 0
         self.k = self.embedding.shape[0] * self.embedding.shape[1] + \
                  self.softmax_w.shape[0] * self.softmax_w.shape[1]
+        print('Matrix E: Vw * d: ', self.embedding.shape[0], self.embedding.shape[1])
+        print('Matrix F: d * Bc: ', self.embedding.shape[0], self.embedding.shape[1])
+        print('k: ', self.k)
 
         # paths
         self.model_path = model_path
@@ -83,7 +86,7 @@ class Model:
                 print("End of dataset")
                 print("Sum log likelihood: ", sum_log_likelihood)
 
-            self.sum_log_likelihood = sum_log_likelihood
+            self.sum_log_likelihood = - sum_log_likelihood
 
         return self.sum_log_likelihood
 
