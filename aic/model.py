@@ -47,13 +47,12 @@ class Model:
             self.g_softmax_w = tf.get_variable("softmax_w", initializer=self.softmax_w)
 
             # conditional probability of word given contexts
-            self.g_mul = tf.transpose(tf.matmul(self.g_softmax_w, tf.transpose(self.g_embed)))
-            self.g_logits = tf.exp(self.g_mul)
-            self.g_sum_logits = tf.reduce_sum(self.g_logits, axis=1)
-            self.indices = tf.stack([tf.range(tf.shape(self.g_labels)[0]), self.g_labels], axis=1)
-            self.gather = tf.gather_nd(self.g_logits, self.indices)
-            self.g_likelihood = self.gather / self.g_sum_logits
-            self.g_sum_log_likelihood = tf.reduce_sum(tf.log(self.g_likelihood))
+            logits = tf.matmul(self.g_embed, tf.transpose(self.g_softmax_w))
+            labels_one_hot = tf.one_hot(self.g_labels, self.n_context)
+            self.full_loss = tf.nn.softmax_cross_entropy_with_logits(
+                labels=labels_one_hot,
+                logits=logits)
+            self.g_sum_log_likelihood = tf.reduce_sum(self.full_loss)
 
             # init variables
             self.g_init = tf.global_variables_initializer()
