@@ -114,6 +114,14 @@ class Model:
 
         return loss
 
+    def get_loss_batch(self, words, contexts):
+        feed = {self.g_inputs: words,
+                self.g_labels: [contexts]}
+
+        loss = self.sess.run(self.full_loss, feed_dict=feed)
+
+        return loss.reshape(-1)
+
     def snml_length(self, word, context, epochs=10):
         prob_sum = 0
 

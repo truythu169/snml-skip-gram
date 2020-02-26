@@ -18,16 +18,28 @@ def get_loss_list(m, d):
     return loss_list
 
 
+def get_loss_list_batch(m, d, batch_size=100):
+    loss_list = []
+    d = d.reshape(d.shape[0] // batch_size, -1, d.shape[1])
+
+    for batch in d:
+        w = batch[:, 0]
+        c = batch[:, 1]
+        loss_list.extend(m.get_loss_batch(w, c))
+
+    return loss_list
+
+
 if __name__ == "__main__":
-    dims = [30, 100]
-    n_sample = 30000
+    dims = [50, 100, 150, 170]
+    n_sample = 100000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/wiki/scope.csv', delimiter=',').astype(int)
 
     for dim in dims:
         # full data
-        model = Model('../../../output/text8/20200114/snml/1/train1/{}dim/'.format(dim),
+        model = Model('../../../output/wiki/20200126/1/train1/{}dim/step-90/'.format(dim),
                       '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.1)
 
-        loss_list = get_loss_list(model, data[:n_sample])
-        save_pkl(loss_list, 'cv_lines/cv_{}_dim.pkl'.format(dim))
+        loss_list = get_loss_list_batch(model, data[:n_sample])
+        save_pkl(loss_list, 'cv_lines/cv_{}_dim.pkl'.format(dim), local=True)
