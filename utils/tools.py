@@ -185,6 +185,17 @@ def sample_negative(neg_size=200, except_sample=None, vocab_size=200):
     return negative_samples
 
 
+def sample_negative_given_dist(context_distribution, sample_size=1000):
+    draw = np.random.multinomial(sample_size, context_distribution)
+    sample_ids = np.where(draw > 0)[0]
+
+    samples = []
+    for context_id in sample_ids:
+        samples.extend([context_id] * draw[context_id])
+
+    return samples
+
+
 def sample_context(context_distribution, sample_size=1000):
     draw = np.random.multinomial(sample_size, context_distribution)
     sample_ids = np.where(draw > 0)[0]
@@ -229,5 +240,9 @@ def sample_learning_data(data_path, max_n_file, rand_size):
     contexts = data[:, 1].tolist()
 
     return words, contexts
+
+
+def sigmoid(x):
+    return 1/(1 + np.exp(-x))
 
 

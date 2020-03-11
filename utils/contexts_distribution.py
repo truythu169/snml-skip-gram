@@ -6,7 +6,7 @@ from utils.settings import config
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--data_path', default='../../data/wiki/', type=str)
+    parser.add_argument('--data_path', default='../../data/text8/', type=str)
     args = parser.parse_args()
 
     print('Reading file...')
