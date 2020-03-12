@@ -28,9 +28,9 @@ class SkipGram:
                 os.makedirs(self.snml_dir)
 
         # sync with gcs
-        utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
-        utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
-        utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
+        #utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
+        #utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
+        #utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
         self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
@@ -61,7 +61,7 @@ class SkipGram:
         self.n_batches = self.n_datums // self.batch_size
 
         # Context distribution
-        self.context_distribution = utils.load_pkl(self.data_path + config['TRAIN']['context_dist'], local=True)
+        self.context_distribution = utils.load_pkl(self.data_path + config['TRAIN']['context_dist'])
         self.context_distribution = self.context_distribution ** (3/4)
         self.context_distribution = self.context_distribution / sum(self.context_distribution)
 
@@ -104,7 +104,7 @@ class SkipGram:
                     loss = self._train_one_sample(int(row[0]), int(row[1]), learning_rate)
                     losses.append(loss)
 
-            eval = Embedding(self.E, self.int_to_vocab, self.vocab_to_int)
+            eval = Embedding(np.array(self.E), self.int_to_vocab, self.vocab_to_int)
             wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
             wa_scores.append(wa_score['all'])
             print('Epochs: {}, WA score: {}'.format(_, wa_score['all']))
@@ -130,6 +130,11 @@ class SkipGram:
         e = self.E[w]
         labels = [c] + neg
         p = utils.sigmoid(np.dot(e, self.F[labels].T)).reshape(-1, 1)
+        if p[0] == 0:
+            print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
+	for i in p[1:]:
+            if i == 1:
+                print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
 
         # Loss
         loss = -(np.log(p[0]) + np.sum(np.log(1-p[1:])))
