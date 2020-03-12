@@ -132,7 +132,7 @@ class SkipGram:
         p = utils.sigmoid(np.dot(e, self.F[labels].T)).reshape(-1, 1)
         if p[0] == 0:
             print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
-	for i in p[1:]:
+        for i in p[1:]:
             if i == 1:
                 print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
 
