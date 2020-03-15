@@ -3,6 +3,7 @@ from collections import Counter
 from google.cloud import storage as gcs
 import random
 import pickle
+import math
 import os
 from nltk.corpus import stopwords
 from utils.settings import config, env
@@ -35,11 +36,13 @@ def preprocess(text, min_word=73):
     words = text.split()
 
     # Remove all words with  min_word or fewer occurences
-    word_counts = Counter(words)
+    clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
+    word_counts = Counter(clear_words)
+    # word_counts = Counter(words)
     trimmed_words = [word for word in words if word_counts[word] > min_word]
 
     # Get top words
-    clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
+    # clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
     word_counts = Counter(clear_words)
     top_words = word_counts.most_common(n_top)
 
@@ -67,13 +70,6 @@ def create_lookup_tables(words):
     # Load stop words
     stop_words = stopwords.words('english')
 
-    # dict for contexts
-    word_counts = Counter(words)
-    sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
-
-    int_to_cont = {ii: word for ii, word in enumerate(sorted_vocab)}
-    cont_to_int = {word: ii for ii, word in int_to_cont.items()}
-
     # dict for words
     non_stopwords_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
     word_counts = Counter(non_stopwords_words)
@@ -81,6 +77,13 @@ def create_lookup_tables(words):
 
     int_to_vocab = {ii: word for ii, word in enumerate(sorted_vocab)}
     vocab_to_int = {word: ii for ii, word in int_to_vocab.items()}
+
+    # dict for contexts
+    # word_counts = Counter(words)
+    # sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
+
+    int_to_cont = {ii: word for ii, word in enumerate(sorted_vocab)}
+    cont_to_int = {word: ii for ii, word in int_to_cont.items()}
 
     return [vocab_to_int, int_to_vocab, cont_to_int, int_to_cont]
 
@@ -242,7 +245,16 @@ def sample_learning_data(data_path, max_n_file, rand_size):
     return words, contexts
 
 
-def sigmoid(x):
-    return 1/(1 + np.exp(-x))
+# def sigmoid(z):
+#     if z > 6:
+#         return 1.0
+#     elif z < -6:
+#         return 0.0
+#     else:
+#         return 1 / (1 + math.exp(-z))
+
+
+def sigmoid(z):
+    return 1 / (1 + np.exp(-z))
 
 

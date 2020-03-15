@@ -31,7 +31,7 @@ def get_loss_list_batch(m, d, batch_size=100):
 
 
 if __name__ == "__main__":
-    dims = [100, 110, 120, 130, 140, 150, 160, 170, 180]
+    dims = [300]  # 50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 200
     n_sample = 100000
     # read snml train file
     data = np.genfromtxt('../../../data/wiki/scope.csv', delimiter=',').astype(int)

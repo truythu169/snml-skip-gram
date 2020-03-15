@@ -28,14 +28,15 @@ class SkipGram:
                 os.makedirs(self.snml_dir)
 
         # sync with gcs
-        #utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
-        #utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
-        #utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
+        utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
         self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
         self.vocab_to_int = utils.load_pkl(input_path + config['TRAIN']['int_vocab_dict'])
         self.int_to_cont = utils.load_pkl(input_path + config['TRAIN']['context_dict'])
+        self.cont_to_int = utils.load_pkl(input_path + config['TRAIN']['cont_to_int'])
         self.n_vocab = len(self.int_to_vocab)
         self.n_context = len(self.int_to_cont)
 
@@ -64,6 +65,20 @@ class SkipGram:
         self.context_distribution = utils.load_pkl(self.data_path + config['TRAIN']['context_dist'])
         self.context_distribution = self.context_distribution ** (3/4)
         self.context_distribution = self.context_distribution / sum(self.context_distribution)
+
+        # Context sample look up table
+        table_size = 100000000  # Length of the unigram table
+        table = np.zeros(table_size, dtype=np.uint32)
+
+        p = 0  # Cumulative probability
+        i = 0
+        for j in range(self.n_context):
+            p += self.context_distribution[j]
+            while i < table_size and float(i) / table_size < p:
+                table[i] = j
+                i += 1
+        self.table = table
+        self.pos_neg = [1] + [0 for _ in range(self.n_sampled)]
 
         # evaluator
         self.word_analogy = WordAnalogy(config['TRAIN']['question_file'])
@@ -114,14 +129,16 @@ class SkipGram:
         utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['acc_file'])
 
     def sample_contexts(self):
-        draw = np.random.multinomial(self.n_sampled, self.context_distribution)
-        sample_ids = np.where(draw > 0)[0]
-
-        samples = []
-        for context_id in sample_ids:
-            samples.extend([context_id] * draw[context_id])
-
-        return samples
+        # draw = np.random.multinomial(self.n_sampled, self.context_distribution)
+        # sample_ids = np.where(draw > 0)[0]
+        #
+        # samples = []
+        # for context_id in sample_ids:
+        #     samples.extend([context_id] * draw[context_id])
+        #
+        # return samples
+        indices = np.random.randint(low=0, high=len(self.table), size=self.n_sampled)
+        return [self.table[i] for i in indices]
 
     def _train_one_sample(self, w, c, learning_rate=0.001):
         neg = self.sample_contexts()
@@ -129,12 +146,22 @@ class SkipGram:
         # Forward propagation
         e = self.E[w]
         labels = [c] + neg
-        p = utils.sigmoid(np.dot(e, self.F[labels].T)).reshape(-1, 1)
+        f_labels = self.F[labels].copy()
+        a = np.dot(e, f_labels.T).reshape(-1, 1)
+        p = utils.sigmoid(a)
+
+        # # Loss and Back propagation
+        # de = 0
+        # for label, a_value, pos_neg in zip(labels, a, self.pos_neg):
+        #     p = utils.sigmoid(a_value)
+        #     self.F[label] -= learning_rate * (p - pos_neg) * e
+        #     de += (p - pos_neg) * self
+
         if p[0] == 0:
-            print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
+            print(w, c, a, utils.sigmoid(np.dot(e, self.F[labels].T)))
         for i in p[1:]:
             if i == 1:
-                print(w, c, utils.sigmoid(np.dot(e, self.F[labels].T)))
+                print(w, c, a, utils.sigmoid(np.dot(e, self.F[labels].T)))
 
         # Loss
         loss = -(np.log(p[0]) + np.sum(np.log(1-p[1:])))
@@ -142,7 +169,7 @@ class SkipGram:
         # Back propagation
         p[0] = p[0] - 1
         self.F[labels] -= learning_rate * p * np.tile(e, (len(p), 1))
-        self.E[w] -= learning_rate * np.sum(p * self.F[labels])
+        self.E[w] -= learning_rate * np.sum(p * f_labels, axis=0)
 
         return loss
 
