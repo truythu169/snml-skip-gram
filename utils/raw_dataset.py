@@ -70,7 +70,7 @@ class RawDataset:
         else:
             return False
 
-    def get_target(self, words, idx, window_size=15):
+    def get_target(self, words, idx, window_size=5):
         """ Get a list of words in a window around an index. """
         R = np.random.randint(1, window_size + 1)
         start = idx - R if (idx - R) > 0 else 0
@@ -79,7 +79,7 @@ class RawDataset:
 
         return list(target_words)
 
-    def get_batches(self, batch_size, window_size=15):
+    def get_batches(self, batch_size, window_size=5):
         """ Create a generator of word batches as a tuple (inputs, targets) """
         n_data = len(self.words)
 

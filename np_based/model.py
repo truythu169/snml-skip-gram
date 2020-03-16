@@ -124,6 +124,10 @@ class SkipGram:
             wa_scores.append(wa_score['all'])
             print('Epochs: {}, WA score: {}'.format(_, wa_score['all']))
 
+            # Save step
+            if _ % 5 == 0:
+                self.export_model(self.output_dictionary + 'step-{}/'.format(int(_)))
+
         # export losses
         utils.save_pkl(aver_losses, self.output_dictionary + config['TRAIN']['loss_file'])
         utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['acc_file'])
