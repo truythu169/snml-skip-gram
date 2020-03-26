@@ -20,6 +20,7 @@ class Model:
         self.n_context_sample = n_context_sample
         self.scope = 0
         self.learning_rate = learning_rate
+        random_seed = int(config['SETTING']['seed'])
 
         # paths
         self.data_path = model_path

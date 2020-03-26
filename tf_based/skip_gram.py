@@ -12,10 +12,11 @@ class SkipGram:
 
     # Constructor
     def __init__(self, input_path, output_path, n_embedding, batch_size, epochs, n_sampled,
-                 snml=False, snml_dir='', random_seed=1234):
+                 snml=False, snml_dir=''):
         self.n_embedding = n_embedding
         self.embedding = np.array([])
         self.data_path = input_path
+        random_seed = int(config['SETTING']['seed'])
 
         # create output directory
         self.output_dictionary = output_path + config['TRAIN']['output_dir'].format(n_embedding)
@@ -72,7 +73,7 @@ class SkipGram:
         # with self.train_graph.as_default():
         return
 
-    def _set_computation(self, file_name, random_seed=1234):
+    def _set_computation(self, file_name, random_seed):
         with self.train_graph.as_default():
             # set random seed
             tf.set_random_seed(random_seed)

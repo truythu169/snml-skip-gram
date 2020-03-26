@@ -14,4 +14,4 @@ env = configparser.ConfigParser()
 env.read(root_dir + '/env.ini', encoding='utf-8')
 
 # set random seed
-random.seed(1234)
+random.seed(int(config['SETTING']['seed']))
