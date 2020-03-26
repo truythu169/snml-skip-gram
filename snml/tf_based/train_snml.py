@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--model', default='../../../output/wiki/20200226/1/50dim/', type=str)
     parser.add_argument('--context_path', default='../../../data/wiki/contexts/', type=str)
-    parser.add_argument('--snml_train_file', default='../../../data/wiki/scope1.csv', type=str)
+    parser.add_argument('--snml_train_file', default='../../../data/wiki/scope.csv', type=str)
     parser.add_argument('--scope', default=10000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.0026, type=float)
