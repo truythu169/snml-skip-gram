@@ -1,4 +1,5 @@
 from snml.tf_based.model import Model
+import tensorflow as tf
 import numpy as np
 
 
@@ -18,18 +19,19 @@ def get_loss_list(m, d):
 
 
 if __name__ == "__main__":
-    dims = [30, 50, 55, 60, 65, 70, 75, 80, 100, 150]
-    n_sample = 9000
+    dims = [50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 300]
+    n_sample = 30000
     # read snml train file
-    data = np.genfromtxt('../../../data/text8/scope1.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/wiki/scope.csv', delimiter=',').astype(int)
 
     cvs = []
     for dim in dims:
         # full data
-        model = Model('../../../output/text8/20200114/snml/1/train2/{}dim/'.format(dim),
-                      '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=0.1)
+        tf.reset_default_graph()
+        model = Model('../../../output/wiki/20200126/1/train1/{}dim/step-90/'.format(dim),
+                      '../../../data/wiki/contexts/', n_context_sample=3000, learning_rate=0.1)
 
-        p_full = get_loss_list(model, data[:n_sample])
+        p_full = get_loss_list(model, data[299999:n_sample + 299999])
         cvs.append(sum(p_full))
 
     for dim, cv in zip(dims, cvs):

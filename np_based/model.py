@@ -82,7 +82,7 @@ class SkipGram:
 
         # evaluator
         self.word_analogy = WordAnalogy(config['TRAIN']['question_file'])
-        # self.word_analogy.set_top_words(config['TRAIN']['top_word_file'])
+        self.word_analogy.set_top_words(config['TRAIN']['top_word_file'])
 
         # output file
         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, n_sampled, epochs, batch_size)
@@ -120,7 +120,7 @@ class SkipGram:
                     losses.append(loss)
 
             eval = Embedding(np.array(self.E), self.int_to_vocab, self.vocab_to_int)
-            wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+            wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=True)
             wa_scores.append(wa_score['all'])
             print('Epochs: {}, WA score: {}'.format(_, wa_score['all']))
 
