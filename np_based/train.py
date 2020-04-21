@@ -3,12 +3,12 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_path', default='../../data/text8_ng2/', type=str)
-    parser.add_argument('--output_path', default='../../output/skip_gram/text8_ng2/test/', type=str)
-    parser.add_argument('--n_embedding', default=150, type=int)
-    parser.add_argument('--learning_rate', default=0.025, type=float)
-    parser.add_argument('--n_sampled', default=5, type=int)
-    parser.add_argument('--epochs', default=30, type=int)
+    parser.add_argument('--input_path', default='../../data/text8_ng/', type=str)
+    parser.add_argument('--output_path', default='../../output/skip_gram/text8_ng/test/', type=str)
+    parser.add_argument('--n_embedding', default=50, type=int)
+    parser.add_argument('--learning_rate', default=0.01, type=float)
+    parser.add_argument('--n_sampled', default=15, type=int)
+    parser.add_argument('--epochs', default=3, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
     parser.add_argument('--print_step', default=1000000, type=int)
     parser.add_argument('--snml_dir', default='', type=str)

@@ -145,6 +145,7 @@ def download_from_gcs(local_path, force_update=False):
     if not os.path.exists(output_dictionary):
         os.makedirs(output_dictionary)
 
+    print('Download file: ', gcs_path)
     blob.download_to_filename(local_path)
 
 
@@ -160,6 +161,7 @@ def upload_to_gcs(local_path, force_update=False):
     if blob.exists() and not force_update:
         return
 
+    print('Upload file: ', gcs_path)
     blob.upload_from_filename(local_path)
 
 

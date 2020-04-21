@@ -29,7 +29,9 @@ class SkipGram:
 
         # sync with gcs
         utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['int_vocab_dict'])
         utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['cont_to_int'])
         utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
@@ -82,7 +84,7 @@ class SkipGram:
 
         # evaluator
         self.word_analogy = WordAnalogy(config['TRAIN']['question_file'])
-        self.word_analogy.set_top_words(config['TRAIN']['top_word_file'])
+        # self.word_analogy.set_top_words(config['TRAIN']['top_word_file'])
 
         # output file
         self.embedding_file = config['TRAIN']['embedding'].format(self.n_embedding, n_sampled, epochs, batch_size)
