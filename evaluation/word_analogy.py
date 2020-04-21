@@ -37,7 +37,7 @@ class WordAnalogy:
         self.top_words = []
 
     def set_top_words(self, filename):
-        with open(filename, "r") as f:
+        with open(filename, "r", encoding='utf-8') as f:
             words = f.read().splitlines()
         self.top_words = set(words[:14215])
 

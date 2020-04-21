@@ -6,16 +6,16 @@ from utils.embedding import Embedding
 if __name__ == "__main__":
     wordsim = Wordsim()
     word_analogy = WordAnalogy()
-    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
+    word_analogy.set_top_words('../../data/wiki/top_30000_words.txt')
 
     suffix = ''
-    dimension_list = [100]
-    epochs = [200]
+    dimension_list = [50, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200, 300]
+    epochs = [90]
     wa_list = []
     ws_list = []
 
-    for dimension, epoch in zip(dimension_list, epochs):
-        filename = '../../output/text8/20200114/snml/1/train2/{}dim/embedding-e={}-n_sampled=3000-epochs={}-batch_size=1000{}.txt'.format(dimension, dimension, epoch, suffix)
+    for dimension in dimension_list:
+        filename = '../../output/wiki/20200126/1/train1/{}dim/step-90/embedding.txt'.format(dimension)
         print('Reading: ', filename)
         embedding = Embedding.from_file(filename)
 

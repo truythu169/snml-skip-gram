@@ -14,7 +14,7 @@ project_id = env['GCS']['project_id']
 bucket_name = env['GCS']['bucket']
 
 
-def preprocess(text, min_word=5):
+def preprocess(text, min_word=73):
     # Load stop words
     stop_words = stopwords.words('english')
     n_top = int(config['PREPROCESS']['n_top'])
@@ -38,12 +38,11 @@ def preprocess(text, min_word=5):
     # Remove all words with  min_word or fewer occurences
     # clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
     word_counts = Counter(words)
-    # word_counts = Counter(words)
     trimmed_words = [word for word in words if word_counts[word] > min_word]
 
     # Get top words
-    # clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
-    word_counts = Counter(words)
+    clear_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
+    word_counts = Counter(clear_words)
     top_words = word_counts.most_common(n_top)
 
     return trimmed_words, top_words
@@ -72,16 +71,15 @@ def create_lookup_tables(words):
 
     # dict for words
     non_stopwords_words = [word for word in words if (word.lower() not in stop_words) and (len(word) > 1)]
-    word_counts = Counter(words)
+    word_counts = Counter(non_stopwords_words)
     sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
 
     int_to_vocab = {ii: word for ii, word in enumerate(sorted_vocab)}
     vocab_to_int = {word: ii for ii, word in int_to_vocab.items()}
 
     # dict for contexts
-    # word_counts = Counter(words)
-    # sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
-
+    word_counts = Counter(words)
+    sorted_vocab = sorted(word_counts, key=word_counts.get, reverse=True)
     int_to_cont = {ii: word for ii, word in enumerate(sorted_vocab)}
     cont_to_int = {word: ii for ii, word in int_to_cont.items()}
 
@@ -147,6 +145,7 @@ def download_from_gcs(local_path, force_update=False):
     if not os.path.exists(output_dictionary):
         os.makedirs(output_dictionary)
 
+    print('Download file: ', gcs_path)
     blob.download_to_filename(local_path)
 
 
@@ -162,6 +161,7 @@ def upload_to_gcs(local_path, force_update=False):
     if blob.exists() and not force_update:
         return
 
+    print('Upload file: ', gcs_path)
     blob.upload_from_filename(local_path)
 
 

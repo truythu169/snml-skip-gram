@@ -29,7 +29,9 @@ class SkipGram:
 
         # sync with gcs
         utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['int_vocab_dict'])
         utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['cont_to_int'])
         utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
@@ -120,7 +122,7 @@ class SkipGram:
                     losses.append(loss)
 
             eval = Embedding(np.array(self.E), self.int_to_vocab, self.vocab_to_int)
-            wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+            wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=True)
             wa_scores.append(wa_score['all'])
             print('Epochs: {}, WA score: {}'.format(_, wa_score['all']))
 
