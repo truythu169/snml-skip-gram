@@ -39,7 +39,7 @@ class WordAnalogy:
     def set_top_words(self, filename):
         with open(filename, "r") as f:
             words = f.read().splitlines()
-        self.top_words = set(words)
+        self.top_words = set(words[:14215])
 
     def get_data_by_category(self, cat, high_level_category=False):
         if high_level_category:
