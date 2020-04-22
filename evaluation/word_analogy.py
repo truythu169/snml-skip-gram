@@ -39,7 +39,7 @@ class WordAnalogy:
     def set_top_words(self, filename):
         with open(filename, "r", encoding='utf-8') as f:
             words = f.read().splitlines()
-        self.top_words = set(words[:14215])
+        self.top_words = set(words)
 
     def get_data_by_category(self, cat, high_level_category=False):
         if high_level_category:
@@ -138,7 +138,7 @@ class WordAnalogy:
 
 if __name__ == "__main__":
     word_analogy = WordAnalogy()
-    word_analogy.set_top_words('../../data/text8/top_30000_words.txt')
-    file_name = '../../output/text8/20191209/full/1/100dim/embedding-e=100-n_sampled=3000-epochs=47-batch_size=1000.txt'
+    word_analogy.set_top_words('../../data/text8_ng4/top_30000_words.txt')
+    file_name = '../../output/skip_gram/text8_ng4/test/50dim/step-0/embedding.txt'
     embedding = Embedding.from_file(file_name)
     result = word_analogy.evaluate(embedding, high_level_category=False, restrict_top_words=False)
