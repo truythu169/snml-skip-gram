@@ -135,14 +135,6 @@ class SkipGram:
         utils.save_pkl(wa_scores, self.output_dictionary + config['TRAIN']['acc_file'])
 
     def sample_contexts(self):
-        # draw = np.random.multinomial(self.n_sampled, self.context_distribution)
-        # sample_ids = np.where(draw > 0)[0]
-        #
-        # samples = []
-        # for context_id in sample_ids:
-        #     samples.extend([context_id] * draw[context_id])
-        #
-        # return samples
         indices = np.random.randint(low=0, high=len(self.table), size=self.n_sampled)
         return [self.table[i] for i in indices]
 
@@ -155,13 +147,6 @@ class SkipGram:
         f_labels = self.F[labels].copy()
         a = np.dot(e, f_labels.T).reshape(-1, 1)
         p = utils.sigmoid(a)
-
-        # # Loss and Back propagation
-        # de = 0
-        # for label, a_value, pos_neg in zip(labels, a, self.pos_neg):
-        #     p = utils.sigmoid(a_value)
-        #     self.F[label] -= learning_rate * (p - pos_neg) * e
-        #     de += (p - pos_neg) * self
 
         if p[0] == 0:
             print(w, c, a, utils.sigmoid(np.dot(e, self.F[labels].T)))

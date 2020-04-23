@@ -3,9 +3,9 @@ import argparse
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input_path', default='../../data/text8_ng4/', type=str)
-    parser.add_argument('--output_path', default='../../output/skip_gram/text8_ng4/test/', type=str)
-    parser.add_argument('--n_embedding', default=50, type=int)
+    parser.add_argument('--input_path', default='../../data/text8/', type=str)
+    parser.add_argument('--output_path', default='../../output/skip_gram/text8/test/', type=str)
+    parser.add_argument('--n_embedding', default=130, type=int)
     parser.add_argument('--learning_rate', default=0.01, type=float)
     parser.add_argument('--n_sampled', default=15, type=int)
     parser.add_argument('--epochs', default=3, type=int)
