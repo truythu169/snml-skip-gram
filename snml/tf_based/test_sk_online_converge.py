@@ -31,9 +31,9 @@ if __name__ == "__main__":
     learning_rate = args.rate
     full_datas = ['snml']
     test_datas = ['snml']
-    n_sample = 10000
+    n_sample = 1000
     # read snml train file
-    data = np.genfromtxt('../../../data/wiki/scope1.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/wiki/2/test_lr.csv', delimiter=',').astype(int)
 
     mae_before = []
     mae_after = []
@@ -43,15 +43,15 @@ if __name__ == "__main__":
         print('full: ', full_data, 'test: ', test_data)
 
         # full data
-        model = Model('../../../output/wiki/20200126/1/train2/{}dim/step-90/'.format(dim),
-                      '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
+        model = Model('../../../output/wiki/20200126/3/train3/{}dim/'.format(dim),
+                      '../../../data/wiki/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         tf.reset_default_graph()
-        model = Model('../../../output/wiki/20200126/1/train1/{}dim/step-90/'.format(dim),
-                      '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
+        model = Model('../../../output/wiki/20200126/3/train1/{}dim/'.format(dim),
+                      '../../../data/wiki/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
 

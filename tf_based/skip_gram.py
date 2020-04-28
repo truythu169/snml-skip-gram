@@ -31,7 +31,7 @@ class SkipGram:
         # sync with gcs
         utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
         utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
-        utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
+        # utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
         self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
