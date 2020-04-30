@@ -12,7 +12,7 @@ class SkipGram:
 
     # Constructor
     def __init__(self, input_path, output_path, n_embedding, batch_size, epochs, n_sampled,
-                 snml=False, snml_dir='', weight_random_seed=1234, negative_sample_random_seed=1234):
+                 snml=False, snml_dir=''):
         self.n_embedding = n_embedding
         self.embedding = np.array([])
         self.data_path = input_path
@@ -46,10 +46,11 @@ class SkipGram:
         self.batch_size = batch_size
         self.epochs = epochs
         self.n_sampled = n_sampled
-        np.random.seed(weight_random_seed)  # Set seed for weights
+        random_seed = int(config['OTHER']['random_seed'])
+        np.random.seed(random_seed)  # Set seed for weights
         self.E = [np.random.uniform(-0.8, 0.8, self.n_embedding) for _ in range(self.n_vocab)]
         self.F = np.random.uniform(-0.8, 0.8, (self.n_context, self.n_embedding))
-        np.random.seed(negative_sample_random_seed)  # Set seed for anythings else (negative samples)
+        np.random.seed(random_seed)  # Set seed for anythings else (negative samples)
 
         # construct computation graph
         if snml:
