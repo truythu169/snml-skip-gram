@@ -22,7 +22,7 @@ def get_loss_list(m, d):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dim', default='50', type=str)
-    parser.add_argument('--rate', default=0.0066, type=float)
+    parser.add_argument('--rate', default=0.008, type=float)
     args = parser.parse_args()
 
     epochs = 2
@@ -43,13 +43,13 @@ if __name__ == "__main__":
 
         # full data
         model = Model('../../output/sgns/text8/2/train2/{}dim/'.format(dim),
-                      '../../data/text8/', learning_rate=0.008)
+                      '../../data/text8/', learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         model = Model('../../output/sgns/text8/2/train1/{}dim/'.format(dim),
-                      '../../data/text8/', learning_rate=0.008)
+                      '../../data/text8/', learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
 
