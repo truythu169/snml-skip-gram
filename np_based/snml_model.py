@@ -39,6 +39,9 @@ class Model:
                 i += 1
         self.table = table
 
+        # Set random seed
+        np.random.seed(int(config['OTHER']['random_seed']))
+
     def get_prob(self, word, context):
         # forward propagation
         e = self.E[word]

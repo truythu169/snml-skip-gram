@@ -8,13 +8,13 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../output/sgns/text8/1/train2/50dim/', type=str)
+    parser.add_argument('--model', default='../../output/sgns/text8/2/train1/90dim/', type=str)
     parser.add_argument('--context_file', default='../../data/text8/', type=str)
-    parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
+    parser.add_argument('--snml_train_file', default='../../data/text8/shufle/1//scope.csv', type=str)
     parser.add_argument('--negative_sample', default=15, type=int)
     parser.add_argument('--scope', default=10000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
-    parser.add_argument('--learning_rate', default=0.01, type=float)
+    parser.add_argument('--learning_rate', default=0.0065, type=float)
     parser.add_argument('--continue_from', default=0, type=int)
     parser.add_argument('--continue_scope', default=0, type=int)
     args = parser.parse_args()
@@ -24,7 +24,7 @@ if __name__ == "__main__":
         args.continue_scope = args.scope
 
     # read snml train file
-    utils.download_from_gcs(args.snml_train_file)
+    # utils.download_from_gcs(args.snml_train_file)
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Initialize model
