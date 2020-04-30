@@ -8,7 +8,7 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../output/skip_gram/text8/test/130dim/', type=str)
+    parser.add_argument('--model', default='../../output/sgns/text8/1/train2/50dim/', type=str)
     parser.add_argument('--context_file', default='../../data/text8/', type=str)
     parser.add_argument('--snml_train_file', default='../../../data/text8/scope.csv', type=str)
     parser.add_argument('--negative_sample', default=15, type=int)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print('Continue step: {}, from file: {}'.format(args.continue_from, previous_file))
 
     # Run snml
-    print_step = 10
+    print_step = 1000
     start = time.time()
     for i in range(args.continue_from, args.scope):
         w = data[i][0]
@@ -58,7 +58,7 @@ if __name__ == "__main__":
             start = time.time()
 
         # save steps
-        if (i + 1) % 1000 == 0:
+        if (i + 1) % 500000 == 0:
             step_path = args.model + '{}-step/'.format(i + 1)
             filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
             utils.save_pkl(snml_lengths, filename)

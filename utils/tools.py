@@ -107,7 +107,7 @@ def load_pkl(filename, local=False):
     """ Load data to pickle """
     # download from gcs
     if not local:
-        download_from_gcs(filename, force_update=True)
+        download_from_gcs(filename, force_update=False)
 
     input = open(filename, 'rb')
     data = pickle.load(input)

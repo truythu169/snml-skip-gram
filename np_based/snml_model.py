@@ -9,6 +9,7 @@ class Model:
 
     def __init__(self, data_path, context_path, learning_rate=0.001, n_negative_sample=15):
         self.E = utils.load_pkl(data_path + 'embedding.pkl')
+        # self.E = np.array(self.E)
         self.F = utils.load_pkl(data_path + 'softmax_w.pkl')
         self.n_vocab = len(self.E)
         self.d = self.F.shape[1]
@@ -73,7 +74,6 @@ class Model:
         # implement pools
         labels = [context] + neg_samples
         job_args = [(word, labels, i, epochs) for i in range(1, len(labels))]
-        print(len(job_args))
         p = Pool(multiprocessing.cpu_count() // 2)
         probs = p.map(self._train_job, job_args)
         p.close()
