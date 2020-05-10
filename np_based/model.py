@@ -119,6 +119,12 @@ class SkipGram:
                         losses = []
                         start = time.time()
 
+                    # Print word analogy
+                    if iteration % (print_step * 10) == 0:
+                        eval = Embedding(np.array(self.E), self.int_to_vocab, self.vocab_to_int)
+                        wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
+                        wa_scores.append(wa_score['all'])
+
                     loss = self._train_one_sample(int(row[0]), int(row[1]), learning_rate)
                     losses.append(loss)
 

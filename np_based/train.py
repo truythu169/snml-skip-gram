@@ -10,7 +10,7 @@ if __name__ == "__main__":
     parser.add_argument('--n_sampled', default=15, type=int)
     parser.add_argument('--epochs', default=3, type=int)
     parser.add_argument('--batch_size', default=1, type=int)
-    parser.add_argument('--print_step', default=1000000, type=int)
+    parser.add_argument('--print_step', default=10000000, type=int)
     parser.add_argument('--snml_dir', default='', type=str)
     parser.add_argument('--stop_threshold', default=0.000000001, type=float)
     args = parser.parse_args()
