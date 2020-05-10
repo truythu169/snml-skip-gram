@@ -32,7 +32,7 @@ if __name__ == "__main__":
     test_datas = ['snml']
     n_sample = 1000
     # read snml train file
-    data = np.genfromtxt('../../data/text8/shufle/1/scope.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../data/text8_ng4/shufle/1/scope.csv', delimiter=',').astype(int)
 
     mae_before = []
     mae_after = []
@@ -42,13 +42,13 @@ if __name__ == "__main__":
         print('full: ', full_data, 'test: ', test_data)
 
         # full data
-        model = Model('../../output/sgns/text8/2/train2/{}dim/'.format(dim),
+        model = Model('../../output/sgns/text8_ng4/2/train2/{}dim/'.format(dim),
                       '../../data/text8/', learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
-        model = Model('../../output/sgns/text8/2/train1/{}dim/'.format(dim),
+        model = Model('../../output/sgns/text8_ng4/2/train1/{}dim/'.format(dim),
                       '../../data/text8/', learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
