@@ -50,6 +50,19 @@ class Model:
 
         return p
 
+    def validation_loss(self, word, context):
+        neg_samples = self.sample_contexts()
+
+        # forward propagation
+        e = self.E[word]
+        a = np.dot(e, self.F[[context] + neg_samples].T)
+        p = utils.sigmoid(a)
+
+        # compute loss
+        loss = - np.log(p[0]) - sum(np.log(1-p[1:]))
+
+        return loss
+
     def sample_contexts(self):
         indices = np.random.randint(low=0, high=len(self.table), size=self.n_negative_sample)
         return [self.table[i] for i in indices]
@@ -120,18 +133,23 @@ class Model:
 
             # Back propagation
             p[pos_sample_index] = p[pos_sample_index] - 1
+            e_ = e.copy()
             e -= self.lr * np.sum(p * F, axis=0)
-            F -= self.lr * p * np.tile(e, (len(p), 1))
+            F -= self.lr * p * np.tile(e_, (len(p), 1))
 
-        # Prob after update
-        prob = utils.sigmoid(np.dot(e, F[pos_sample_index]))
+        # forward propagation
+        a = np.dot(e, F.T)
+        p = utils.sigmoid(a)
+
+        # compute joint probability
+        prob = p[pos_sample_index] * np.prod(1 - np.delete(p, pos_sample_index))
 
         return prob
 
     def _train_pos(self, w, labels, pos_sample_index, epochs):
         for _ in range(epochs):
             # Forward propagation
-            e = self.E[w]
+            e = self.E[w].copy()
             a = np.dot(e, self.F[labels].T).reshape(-1, 1)
             p = utils.sigmoid(a)
 
@@ -140,4 +158,11 @@ class Model:
             self.E[w] -= self.lr * np.sum(p * self.F[labels], axis=0)
             self.F[labels] -= self.lr * p * np.tile(e, (len(p), 1))
 
-        return self.get_prob(w, labels[pos_sample_index])
+        # forward propagation
+        a = np.dot(self.E[w], self.F[labels].T)
+        p = utils.sigmoid(a)
+
+        # compute joint probability
+        prob = p[pos_sample_index] * np.prod(1 - np.delete(p, pos_sample_index))
+
+        return prob
