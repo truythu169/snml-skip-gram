@@ -28,13 +28,14 @@ class SkipGram:
                 os.makedirs(self.snml_dir)
 
         # sync with gcs
-        utils.download_from_gcs(input_path + config['TRAIN']['vocab_dict'])
+        utils.download_from_gcs(input_path + config['TRAIN']['int_to_vocab'])
+        utils.download_from_gcs(input_path + config['TRAIN']['vocab_to_int'])
         utils.download_from_gcs(input_path + config['TRAIN']['context_dict'])
         utils.download_from_gcs(input_path + config['TRAIN']['train_data'])
 
         # read dictionaries
-        self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['vocab_dict'])
-        self.vocab_to_int = utils.load_pkl(input_path + config['TRAIN']['int_vocab_dict'])
+        self.int_to_vocab = utils.load_pkl(input_path + config['TRAIN']['int_to_vocab'])
+        self.vocab_to_int = utils.load_pkl(input_path + config['TRAIN']['vocab_to_int'])
         self.int_to_cont = utils.load_pkl(input_path + config['TRAIN']['context_dict'])
         self.n_vocab = len(self.int_to_vocab)
         self.n_context = len(self.int_to_cont)

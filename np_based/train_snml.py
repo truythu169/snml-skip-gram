@@ -14,7 +14,7 @@ if __name__ == "__main__":
     parser.add_argument('--negative_sample', default=15, type=int)
     parser.add_argument('--scope', default=2700705, type=int)
     parser.add_argument('--epochs', default=2, type=int)
-    parser.add_argument('--learning_rate', default=0.0065, type=float)
+    parser.add_argument('--learning_rate', default=0.0076, type=float)
     parser.add_argument('--continue_from', default=0, type=int)
     parser.add_argument('--continue_scope', default=0, type=int)
     args = parser.parse_args()

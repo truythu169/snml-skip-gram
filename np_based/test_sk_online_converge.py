@@ -22,7 +22,7 @@ def get_loss_list(m, d):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dim', default='50', type=str)
-    parser.add_argument('--rate', default=0.008, type=float)
+    parser.add_argument('--rate', default=0.0079, type=float)
     args = parser.parse_args()
 
     epochs = 2

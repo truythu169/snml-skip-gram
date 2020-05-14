@@ -16,7 +16,7 @@ class Embedding:
     @staticmethod
     def from_file(filename):
         # sync with gcs
-        # utils.download_from_gcs(filename)
+        utils.download_from_gcs(filename)
 
         # load data from file
         f = open(filename, "r", encoding='utf-8')
