@@ -19,7 +19,7 @@ def get_loss_list(m, d):
 
 
 if __name__ == "__main__":
-    dims = [50, 90, 100, 110, 120]
+    dims = [90, 100, 110, 120]
     n_sample = 2692279
     # read snml train file
     data = np.genfromtxt('../../data/text8/shufle/1/scope.csv', delimiter=',').astype(int)
@@ -34,4 +34,4 @@ if __name__ == "__main__":
         print("Compute loss...")
         loss_list = get_loss_list(model, data[:n_sample])
         print("Computed loss of {} data records.".format(len(loss_list)))
-        save_pkl(loss_list, 'C:\\Users/hungp/Downloads/information criteria on sg/text8 ns/snml/cv_{}_dim.pkl'.format(dim), local=True)
+        save_pkl(loss_list, '../../output/sgns/cv/text8/cv_{}_dim.pkl'.format(dim), local=True)
