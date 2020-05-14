@@ -125,6 +125,8 @@ def count_line(filename):
 
 def convert_local_path_to_gcs(local_file):
     parts = local_file.split('.')
+    if len(parts) == 2:
+        return local_file
     gcs_file = parts[-2][1:] + '.' + parts[-1]
     return gcs_file
 
