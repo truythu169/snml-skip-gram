@@ -125,6 +125,8 @@ class SkipGram:
                         wa_score = self.word_analogy.evaluate(eval, high_level_category=False, restrict_top_words=False)
                         wa_scores.append(wa_score['all'])
 
+                        self.export_model(self.output_dictionary + 'step-{}/'.format(int(iteration)))
+
                     loss = self._train_one_sample(int(row[0]), int(row[1]), learning_rate)
                     losses.append(loss)
 
