@@ -50,6 +50,15 @@ class Model:
 
         return p
 
+    def get_context_dis(self, word):
+        # forward propagation
+        e = self.E[word]
+        a = np.dot(e, self.F.T).reshape(-1)
+        p = utils.sigmoid(a)
+        p = p / sum(p)
+
+        return p
+
     def sample_contexts(self):
         indices = np.random.randint(low=0, high=len(self.table), size=self.n_negative_sample)
         return [self.table[i] for i in indices]
