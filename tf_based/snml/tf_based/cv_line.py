@@ -1,4 +1,4 @@
-from snml.tf_based.model import Model
+from tf_based.snml.tf_based.model import Model
 from utils.tools import save_pkl
 import numpy as np
 

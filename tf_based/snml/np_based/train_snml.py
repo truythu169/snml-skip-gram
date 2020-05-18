@@ -1,4 +1,4 @@
-from snml.np_based.model_momentum import ModelMomentum
+from tf_based.snml import ModelMomentum
 import time
 import numpy as np
 import argparse

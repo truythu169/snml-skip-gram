@@ -1,4 +1,4 @@
-from snml.np_based.model import Model
+from tf_based.snml.np_based.model import Model
 import time
 import numpy as np
 import argparse

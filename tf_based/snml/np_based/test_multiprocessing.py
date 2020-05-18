@@ -1,4 +1,4 @@
-from snml.np_based.model import Model
+from tf_based.snml.np_based.model import Model
 from sklearn.metrics import mean_absolute_error
 import time
 

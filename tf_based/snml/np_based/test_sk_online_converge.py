@@ -1,7 +1,5 @@
-from snml.np_based.model import Model
-from snml.np_based.model_momentum import ModelMomentum
+from tf_based.snml import ModelMomentum
 from sklearn.metrics import mean_absolute_error
-from collections import Counter
 import numpy as np
 
 

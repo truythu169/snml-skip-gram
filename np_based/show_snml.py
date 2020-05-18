@@ -17,7 +17,6 @@ def load_txt(filename):
         except:
             continue
     #             print(line)
-
     fp.close()
 
     return data
