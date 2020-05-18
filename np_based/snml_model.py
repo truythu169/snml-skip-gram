@@ -8,9 +8,9 @@ import multiprocessing
 class Model:
 
     def __init__(self, model_path, context_path, learning_rate=0.001, n_negative_sample=15):
-        self.E = utils.load_pkl(model_path + 'embedding.pkl')
+        self.E = utils.load_pkl(model_path + 'embedding.pkl', local=True)
         self.E = np.array(self.E)
-        self.F = utils.load_pkl(model_path + 'softmax_w.pkl')
+        self.F = utils.load_pkl(model_path + 'softmax_w.pkl', local=True)
         self.n_vocab = len(self.E)
         self.d = self.F.shape[1]
         self.n_context = self.F.shape[0]
