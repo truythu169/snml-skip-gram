@@ -1,5 +1,6 @@
 from np_based.snml_model import Model
 from utils.tools import save_pkl
+import argparse
 import numpy as np
 
 
@@ -19,19 +20,27 @@ def get_loss_list(m, d):
 
 
 if __name__ == "__main__":
-    dims = [90, 100, 110, 120]
-    n_sample = 2692279
-    # read snml train file
-    data = np.genfromtxt('../../data/text8/shufle/1/scope.csv', delimiter=',').astype(int)
-    print(len(data))
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--model_path', default='../output/sgns/text8/2/train1/{}dim/', type=str)
+    parser.add_argument('--scope_file', default='../data/text8/shufle/1/scope.csv', type=str)
+    parser.add_argument('--n_sample', default=2692279, type=int)
+    args = parser.parse_args()
+
+    dims = [40, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105, 110, 115, 120, 130, 140, 150, 160, 170, 200]
+    data = np.genfromtxt(args.scope_file, delimiter=',').astype(int)
+    sum_loss_list = []
 
     for dim in dims:
         print("Loading model dim: ", dim)
         # full data
-        model = Model('../../output/sgns/text8/2/train1/{}dim/'.format(dim),
-                      '../../data/text8/', learning_rate=0.1)
+        model = Model(args.model_path.format(dim), '../../data/text8/', learning_rate=0.1)
 
         print("Compute loss...")
-        loss_list = get_loss_list(model, data[:n_sample])
+        loss_list = get_loss_list(model, data[:args.n_sample])
         print("Computed loss of {} data records.".format(len(loss_list)))
-        save_pkl(loss_list, '../../output/sgns/cv/text8/cv_{}_dim.pkl'.format(dim), local=True)
+        # save_pkl(loss_list, '../../output/sgns/cv/text8/cv_{}_dim.pkl'.format(dim), local=True)
+        sum_loss_list.append(sum(loss_list))
+
+    for sum_loss in sum_loss_list:
+        print(sum_loss)
+

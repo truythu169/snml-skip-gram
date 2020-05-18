@@ -66,11 +66,8 @@ if __name__ == "__main__":
     print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
 
     # Save result to file
-    filename = args.model + 'scope-{}-snml_length.txt'.format(args.scope)
-    output = open(filename, 'w')
-    for i in snml_lengths:
-        output.write(str(i) + '\n')
-    output.close()
+    filename = args.model + 'scope-{}-snml_length.pkl'.format(args.scope)
+    utils.save_pkl(snml_lengths, filename)
 
     # upload to gcs
     utils.upload_to_gcs(filename, force_update=True)
