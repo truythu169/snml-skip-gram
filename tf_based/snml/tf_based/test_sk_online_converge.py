@@ -1,5 +1,6 @@
-from np_based.snml_model import Model
+from tf_based.snml.tf_based.model import Model
 from sklearn.metrics import mean_absolute_error
+import tensorflow as tf
 import numpy as np
 import argparse
 
@@ -11,18 +12,18 @@ def print_array(a):
 
 def get_loss_list(m, d):
     loss_list = []
+
     for datum in d:
         w, c = int(datum[0]), int(datum[1])
-        prob = m.get_prob(w, c)
-        loss_list.append(prob)
+        loss_list.append(m.get_loss(w, c))
 
-    return - np.log(loss_list)
+    return loss_list
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--dim', default='20', type=str)
-    parser.add_argument('--rate', default=0.000003, type=float)
+    parser.add_argument('--dim', default='50', type=str)
+    parser.add_argument('--rate', default=0.003, type=float)
     args = parser.parse_args()
 
     epochs = 2
@@ -30,9 +31,9 @@ if __name__ == "__main__":
     learning_rate = args.rate
     full_datas = ['snml']
     test_datas = ['snml']
-    n_sample = 1000
+    n_sample = 10000
     # read snml train file
-    data = np.genfromtxt('../notebooks/output/100-context-500000-data-38-questions/scope.csv', delimiter=',').astype(int)
+    data = np.genfromtxt('../../../data/wiki/scope1.csv', delimiter=',').astype(int)
 
     mae_before = []
     mae_after = []
@@ -42,14 +43,15 @@ if __name__ == "__main__":
         print('full: ', full_data, 'test: ', test_data)
 
         # full data
-        model = Model('../notebooks/output/100-context-500000-data-38-questions/1/301k/{}dim/'.format(dim),
-                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate)
+        model = Model('../../../output/wiki/20200126/1/train2/{}dim/step-90/'.format(dim),
+                      '../../../data/text8/contexts/', n_context_sample=3000, learning_rate=learning_rate)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
-        model = Model('../notebooks/output/100-context-500000-data-38-questions/1/300k/{}dim/'.format(dim),
-                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate)
+        tf.reset_default_graph()
+        model = Model('../../../output/wiki/20200126/1/train1/{}dim/step-90/'.format(dim),
+                      '../../../data/text8/contexts/', n_neg_sample=3000, n_context_sample=3000, learning_rate=learning_rate)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
 
@@ -57,7 +59,7 @@ if __name__ == "__main__":
             datum = data[i]
             w, c = int(data[i][0]), int(data[i][1])
 
-            ps_a = -np.log(model.train(w, c, epochs=epochs))
+            ps_a = -np.log(model.train_one_sample(w, c, epochs=epochs, update_weight=True))
 
             if i % 2000 == 0:
                 print('{} th loop'.format(i))

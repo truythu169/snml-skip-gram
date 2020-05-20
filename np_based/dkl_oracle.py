@@ -49,4 +49,5 @@ if __name__ == "__main__":
                 160, 170, 180, 190, 200]
     n_data = 500000
     for dim in dim_list:
-        print('{}dim dkl: {}'.format(dim, evaludate_model(dim)))
+        # print('{}dim dkl: {}'.format(dim, evaludate_model(dim)))
+        print(evaludate_model(dim))
