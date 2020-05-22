@@ -19,7 +19,7 @@ class Model:
         self.scope = 0
 
         # Context distribution
-        self.context_distribution = utils.load_pkl(context_path + config['TRAIN']['context_dist'])
+        self.context_distribution = utils.load_pkl(context_path + config['TRAIN']['context_dist'], local=True)
         self.context_distribution = self.context_distribution ** (3 / 4)
         self.context_distribution = self.context_distribution / sum(self.context_distribution)
 

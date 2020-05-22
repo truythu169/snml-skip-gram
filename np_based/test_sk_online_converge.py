@@ -13,16 +13,16 @@ def get_loss_list(m, d):
     loss_list = []
     for datum in d:
         w, c = int(datum[0]), int(datum[1])
-        prob = m.get_prob(w, c)
+        prob = m.validation_loss(w, c)
         loss_list.append(prob)
 
-    return - np.log(loss_list)
+    return np.log(loss_list)
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
     parser.add_argument('--dim', default='20', type=str)
-    parser.add_argument('--rate', default=0.000003, type=float)
+    parser.add_argument('--rate', default=0.009, type=float)
     args = parser.parse_args()
 
     epochs = 2
@@ -43,13 +43,15 @@ if __name__ == "__main__":
 
         # full data
         model = Model('../notebooks/output/100-context-500000-data-38-questions/1/301k/{}dim/'.format(dim),
-                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate)
+                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate,
+                      n_negative_sample=3)
 
         p_full = get_loss_list(model, data[:n_sample])
 
         # SNML data
         model = Model('../notebooks/output/100-context-500000-data-38-questions/1/300k/{}dim/'.format(dim),
-                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate)
+                      '../notebooks/output/100-context-500000-data-38-questions/', learning_rate=learning_rate,
+                      n_negative_sample=3)
 
         p_snml_b = get_loss_list(model, data[:n_sample])
 
