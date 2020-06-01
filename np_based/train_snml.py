@@ -8,13 +8,13 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../output/sgns/text8_ng4/2/train1/90dim/', type=str)
-    parser.add_argument('--context_file', default='../../data/text8_ng4/', type=str)
-    parser.add_argument('--snml_train_file', default='../../data/text8_ng4/shufle/1//scope.csv', type=str)
-    parser.add_argument('--negative_sample', default=15, type=int)
-    parser.add_argument('--scope', default=2700705, type=int)
+    parser.add_argument('--model', default='../notebooks/output/100-context-500000-data-38-questions/1/300k/5dim/', type=str)
+    parser.add_argument('--context_file', default='../notebooks/output/100-context-500000-data-38-questions/', type=str)
+    parser.add_argument('--snml_train_file', default='../notebooks/output/100-context-500000-data-38-questions/scope.csv', type=str)
+    parser.add_argument('--negative_sample', default=3, type=int)
+    parser.add_argument('--scope', default=200000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
-    parser.add_argument('--learning_rate', default=0.0076, type=float)
+    parser.add_argument('--learning_rate', default=0.008, type=float)
     parser.add_argument('--continue_from', default=0, type=int)
     parser.add_argument('--continue_scope', default=0, type=int)
     args = parser.parse_args()
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print('Continue step: {}, from file: {}'.format(args.continue_from, previous_file))
 
     # Run snml
-    print_step = 250000
+    print_step = 50000
     start = time.time()
     for i in range(args.continue_from, args.scope):
         w = data[i][0]
@@ -58,16 +58,16 @@ if __name__ == "__main__":
             start = time.time()
 
         # save steps
-        if (i + 1) % 500000 == 0:
-            step_path = args.model + '{}-step/'.format(i + 1)
-            filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
-            utils.save_pkl(snml_lengths, filename)
+        # if (i + 1) % 500000 == 0:
+        #     step_path = args.model + '{}-step/'.format(i + 1)
+        #     filename = step_path + 'scope-{}-snml_length.pkl'.format(args.scope)
+        #     utils.save_pkl(snml_lengths, filename)
 
     print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
 
     # Save result to file
     filename = args.model + 'scope-{}-snml_length.pkl'.format(args.scope)
-    utils.save_pkl(snml_lengths, filename)
+    utils.save_pkl(snml_lengths, filename, local=True)
 
     # upload to gcs
-    utils.upload_to_gcs(filename, force_update=True)
+    # utils.upload_to_gcs(filename, force_update=True)

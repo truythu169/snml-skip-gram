@@ -8,10 +8,10 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../../output/wiki/20200226/1/50dim/', type=str)
-    parser.add_argument('--context_path', default='../../../data/wiki/contexts/', type=str)
-    parser.add_argument('--snml_train_file', default='../../../data/wiki/scope1.csv', type=str)
-    parser.add_argument('--scope', default=10000, type=int)
+    parser.add_argument('--model', default='../../notebooks/output/50-context-500000-data-18-questions/495000/model/200dim/', type=str)
+    parser.add_argument('--context_path', default='../../../data/text8/contexts/', type=str)
+    parser.add_argument('--snml_train_file', default='../../notebooks/output/50-context-500000-data-18-questions/495000/scope.csv', type=str)
+    parser.add_argument('--scope', default=15000, type=int)
     parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.0026, type=float)
     parser.add_argument('--continue_from', default=0, type=int)

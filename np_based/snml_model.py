@@ -19,7 +19,7 @@ class Model:
         self.scope = 0
 
         # Context distribution
-        self.context_distribution = utils.load_pkl(context_path + config['TRAIN']['context_dist'])
+        self.context_distribution = utils.load_pkl(context_path + config['TRAIN']['context_dist'], local=True)
         self.context_distribution = self.context_distribution ** (3 / 4)
         self.context_distribution = self.context_distribution / sum(self.context_distribution)
 
@@ -47,6 +47,15 @@ class Model:
         e = self.E[word]
         a = np.dot(e, self.F[context].T)
         p = utils.sigmoid(a)
+
+        return p
+
+    def get_context_dis(self, word):
+        # forward propagation
+        e = self.E[word]
+        a = np.dot(e, self.F.T).reshape(-1)
+        p = utils.sigmoid(a)
+        p = p / sum(p)
 
         return p
 
