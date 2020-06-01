@@ -1,4 +1,4 @@
-from snml.tf_based.model import Model
+from tf_based.snml.tf_based.model import Model
 from sklearn.metrics import mean_absolute_error
 import tensorflow as tf
 import numpy as np

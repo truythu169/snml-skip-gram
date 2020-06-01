@@ -1,4 +1,4 @@
-from snml.tf_based.model import Model
+from tf_based.snml.tf_based.model import Model
 import utils.tools as utils
 import numpy as np
 

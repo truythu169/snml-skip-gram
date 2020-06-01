@@ -7,14 +7,14 @@ import multiprocessing
 
 class Model:
 
-    def __init__(self, data_path, context_path, learning_rate=0.001, n_negative_sample=15):
-        self.E = utils.load_pkl(data_path + 'embedding.pkl')
-        # self.E = np.array(self.E)
-        self.F = utils.load_pkl(data_path + 'softmax_w.pkl')
+    def __init__(self, model_path, context_path, learning_rate=0.001, n_negative_sample=15):
+        self.E = utils.load_pkl(model_path + 'embedding.pkl', local=True)
+        self.E = np.array(self.E)
+        self.F = utils.load_pkl(model_path + 'softmax_w.pkl', local=True)
         self.n_vocab = len(self.E)
         self.d = self.F.shape[1]
         self.n_context = self.F.shape[0]
-        self.data_path = data_path
+        self.data_path = model_path
         self.n_negative_sample = n_negative_sample
         self.scope = 0
 
@@ -49,6 +49,19 @@ class Model:
         p = utils.sigmoid(a)
 
         return p
+
+    def validation_loss(self, word, context):
+        neg_samples = self.sample_contexts()
+
+        # forward propagation
+        e = self.E[word]
+        a = np.dot(e, self.F[[context] + neg_samples].T)
+        p = utils.sigmoid(a)
+
+        # compute loss
+        loss = - np.log(p[0]) - sum(np.log(1-p[1:]))
+
+        return loss
 
     def sample_contexts(self):
         indices = np.random.randint(low=0, high=len(self.table), size=self.n_negative_sample)
@@ -120,18 +133,23 @@ class Model:
 
             # Back propagation
             p[pos_sample_index] = p[pos_sample_index] - 1
+            e_ = e.copy()
             e -= self.lr * np.sum(p * F, axis=0)
-            F -= self.lr * p * np.tile(e, (len(p), 1))
+            F -= self.lr * p * np.tile(e_, (len(p), 1))
 
-        # Prob after update
-        prob = utils.sigmoid(np.dot(e, F[pos_sample_index]))
+        # forward propagation
+        a = np.dot(e, F.T)
+        p = utils.sigmoid(a)
+
+        # compute joint probability
+        prob = p[pos_sample_index] * np.prod(1 - np.delete(p, pos_sample_index))
 
         return prob
 
     def _train_pos(self, w, labels, pos_sample_index, epochs):
         for _ in range(epochs):
             # Forward propagation
-            e = self.E[w]
+            e = self.E[w].copy()
             a = np.dot(e, self.F[labels].T).reshape(-1, 1)
             p = utils.sigmoid(a)
 
@@ -140,4 +158,11 @@ class Model:
             self.E[w] -= self.lr * np.sum(p * self.F[labels], axis=0)
             self.F[labels] -= self.lr * p * np.tile(e, (len(p), 1))
 
-        return self.get_prob(w, labels[pos_sample_index])
+        # forward propagation
+        a = np.dot(self.E[w], self.F[labels].T)
+        p = utils.sigmoid(a)
+
+        # compute joint probability
+        prob = p[pos_sample_index] * np.prod(1 - np.delete(p, pos_sample_index))
+
+        return prob

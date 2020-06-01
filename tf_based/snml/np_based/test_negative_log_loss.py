@@ -1,10 +1,6 @@
-from snml.np_based.model import Model
+from tf_based.snml.np_based.model import Model
 import utils.tools as utils
-from matplotlib import pyplot as plt
-import time
 import numpy as np
-from matplotlib import pyplot as plt
-
 
 if __name__ == "__main__":
     # get samples from training data

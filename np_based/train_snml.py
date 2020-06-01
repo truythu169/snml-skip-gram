@@ -8,11 +8,11 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../../output/sgns/text8/2/train1/50dim/', type=str)
-    parser.add_argument('--context_file', default='../../data/text8/', type=str)
-    parser.add_argument('--snml_train_file', default='../../data/text8/shufle/1//scope.csv', type=str)
+    parser.add_argument('--model', default='../../output/sgns/text8_ng4/2/train1/90dim/', type=str)
+    parser.add_argument('--context_file', default='../../data/text8_ng4/', type=str)
+    parser.add_argument('--snml_train_file', default='../../data/text8_ng4/shufle/1//scope.csv', type=str)
     parser.add_argument('--negative_sample', default=15, type=int)
-    parser.add_argument('--scope', default=2692279, type=int)
+    parser.add_argument('--scope', default=2700705, type=int)
     parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.0076, type=float)
     parser.add_argument('--continue_from', default=0, type=int)
@@ -42,7 +42,7 @@ if __name__ == "__main__":
     print('Continue step: {}, from file: {}'.format(args.continue_from, previous_file))
 
     # Run snml
-    print_step = 1000
+    print_step = 250000
     start = time.time()
     for i in range(args.continue_from, args.scope):
         w = data[i][0]
@@ -66,11 +66,8 @@ if __name__ == "__main__":
     print('{} scope snml length: {}'.format(args.scope, sum(snml_lengths)))
 
     # Save result to file
-    filename = args.model + 'scope-{}-snml_length.txt'.format(args.scope)
-    output = open(filename, 'w')
-    for i in snml_lengths:
-        output.write(str(i) + '\n')
-    output.close()
+    filename = args.model + 'scope-{}-snml_length.pkl'.format(args.scope)
+    utils.save_pkl(snml_lengths, filename)
 
     # upload to gcs
     utils.upload_to_gcs(filename, force_update=True)

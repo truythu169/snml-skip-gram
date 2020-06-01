@@ -1,4 +1,4 @@
-from snml.np_based.model_momentum import ModelMomentum
+from tf_based.snml import ModelMomentum
 from multiprocessing import Pool
 import multiprocessing
 import utils.tools as utils

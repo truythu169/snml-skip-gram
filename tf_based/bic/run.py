@@ -1,4 +1,4 @@
-from bic.model import BICModel
+from tf_based.bic import BICModel
 import argparse
 
 if __name__ == "__main__":

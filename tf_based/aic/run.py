@@ -1,4 +1,4 @@
-from aic.model import Model
+from tf_based.aic.model import Model
 import argparse
 
 if __name__ == "__main__":
