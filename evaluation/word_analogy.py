@@ -130,8 +130,11 @@ class WordAnalogy:
                 continue
             acc += cat_count * predictions.get(cat)
             total_count += cat_count
-        predictions['all'] = acc / total_count
-        print("All Category accuracy: %f" % (acc / total_count))
+        if total_count == 0:
+            predictions['all'] = 0
+        else:
+            predictions['all'] = acc / total_count
+        # print("All Category accuracy: %f" % (acc / total_count))
 
         return predictions
 

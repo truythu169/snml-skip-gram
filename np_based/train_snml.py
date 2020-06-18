@@ -8,11 +8,11 @@ import os
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model', default='../notebooks/output/100-context-500000-data-38-questions/1/300k/5dim/', type=str)
-    parser.add_argument('--context_file', default='../notebooks/output/100-context-500000-data-38-questions/', type=str)
-    parser.add_argument('--snml_train_file', default='../notebooks/output/100-context-500000-data-38-questions/scope.csv', type=str)
+    parser.add_argument('--model', default='output/text8-oSG/5dim/', type=str)
+    parser.add_argument('--context_path', default='data/text8/contexts/', type=str)
+    parser.add_argument('--snml_train_file', default='data/text8/scope.csv', type=str)
     parser.add_argument('--negative_sample', default=3, type=int)
-    parser.add_argument('--scope', default=200000, type=int)
+    parser.add_argument('--scope', default=10, type=int)
     parser.add_argument('--epochs', default=2, type=int)
     parser.add_argument('--learning_rate', default=0.008, type=float)
     parser.add_argument('--continue_from', default=0, type=int)
@@ -28,7 +28,7 @@ if __name__ == "__main__":
     data = np.genfromtxt(args.snml_train_file, delimiter=',').astype(int)
 
     # Initialize model
-    model = Model(args.model, args.context_file, args.learning_rate, args.negative_sample)
+    model = Model(args.model, args.context_path, args.learning_rate, args.negative_sample)
 
     # Continue from previous
     previous_file = args.model + '{}-step/scope-{}-snml_length.pkl'.format(args.continue_from, args.continue_scope)

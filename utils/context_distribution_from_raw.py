@@ -5,10 +5,10 @@ import numpy as np
 
 if __name__ == "__main__":
     # Data file
-    raw_data_path = '../../data/raw_data/wiki-en-1m.txt'
-    context_to_dict_path = '../../data/wiki-1m/dict/cont_to_int.dict'
-    output_path = '../../data/wiki-1m/contexts/distribution_from_raw.pkl'
-    int_to_cont = load_pkl('../../data/wiki-1m/dict/int_to_cont.dict', local=True)
+    raw_data_path = '../data/raw data/test.txt '
+    context_to_dict_path = 'data/text8/dict/cont_to_int.dict'
+    output_path = 'data/text8/contexts/distribution_from_raw.pkl'
+    int_to_cont = load_pkl('data/text8/dict/int_to_cont.dict', local=True)
 
     # Load data
     with open(raw_data_path, encoding='utf-8') as f:

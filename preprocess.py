@@ -8,8 +8,8 @@ from utils.settings import config
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--input', default='../data/raw data/text8', type=str)
-    parser.add_argument('--output', default='../data/text8_ng4/', type=str)
+    parser.add_argument('--input', default='../data/raw data/wiki-en-sub.txt', type=str)
+    parser.add_argument('--output', default='../data/wiki/', type=str)
     parser.add_argument('--batch_size', default=10000, type=int)
     parser.add_argument('--window_size', default=5, type=int)
     args = parser.parse_args()
