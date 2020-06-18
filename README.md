@@ -16,7 +16,7 @@ pip install -r requirements.txt
 ```
 
 ### Google cloud storage (GCS) set up
-We train models on multiple server but save the result on a GCS bucket. Please create an `env.ini` file to store access to the bucket.
+We train models on multiple servers but save the result on a GCS bucket. Please create an `env.ini` file to store access to the bucket.
 The `env.ini` file should be place in the root directory. The file should include content as following:
 ```
 [GCS]
